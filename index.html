@@ -37,7 +37,11 @@
      - Sem height/min-height:100vh (iframe tem altura própria)
      - Scroll gerenciado pelo iframe do Google Sites
   ══════════════════════════════════════ */
-  html, body {
+  html {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  body {
     overflow: visible !important;
     overflow-x: hidden !important;
     background: var(--cream, #F8F5FD) !important;
@@ -296,7 +300,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   body{overflow-y:visible;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 
   /* Prevent iOS text size adjust on rotation */
-  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;height:auto}
 
   /* Safe area insets — notch / home indicator / Dynamic Island */
   .app{padding-bottom:70px}
