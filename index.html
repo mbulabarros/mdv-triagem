@@ -94,7 +94,7 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:var(--cream);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
 /* ===== SPLASH ===== */
-.splash{position:relative;width:100%;min-height:300px;z-index:10;background:linear-gradient(150deg,#2A0D50 0%,#5A1F8A 45%,#9E2D72 75%,#D43A6E 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .25s ease,transform .3s cubic-bezier(.22,1,.36,1)}
+.splash{position:relative;width:100%;min-height:auto;z-index:10;background:linear-gradient(150deg,#2A0D50 0%,#5A1F8A 45%,#9E2D72 75%,#D43A6E 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .25s ease,transform .3s cubic-bezier(.22,1,.36,1)}
 .splash.hide{display:none !important;opacity:0;pointer-events:none;visibility:hidden}
 .splash-orb{position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(232,67,122,.18),transparent 70%);animation:orb 3s ease-in-out infinite alternate}
 @keyframes orb{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.2);opacity:.9}}
@@ -108,7 +108,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Ar
 @keyframes barSlide{0%{transform:translateX(-150%)}100%{transform:translateX(350%)}};@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* ===== LAYOUT ===== */
-.app{max-width:100%;width:100%;margin:0;background:var(--cream);position:relative;padding-bottom:80px}
+.app{max-width:100%;width:100%;margin:0;background:var(--cream);position:relative;padding-bottom:70px}
 .screen{padding:20px 18px;display:none;position:relative;width:100%;box-sizing:border-box}
 .screen.active{display:block;animation:screenIn .4s cubic-bezier(.22,1,.36,1) forwards}
 @keyframes screenIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
@@ -285,7 +285,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
   /* Safe area insets — notch / home indicator / Dynamic Island */
-  .app{padding-bottom:88px}
+  .app{padding-bottom:70px}
   .bottom-nav{
     padding-bottom:8px;
     padding-left:0px;
