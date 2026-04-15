@@ -263,7 +263,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .doc-tag{margin-left:auto;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:10px;background:rgba(138,147,170,.1);color:var(--text-muted)}
 
 /* ===== OVERLAY ===== */
-.sending-overlay{position:relative;width:100%;padding:40px 20px;z-index:300;background:rgba(9,20,40,.92);backdrop-filter:blur(10px);display:none;height:auto;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;border-radius:var(--r-lg);margin:10px 0}
+.sending-overlay{position:relative;width:100%;padding:40px 20px;z-index:300;background:rgba(9,20,40,.92);backdrop-filter:blur(10px);display:none;height:auto;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;border-radius:var(--r-lg);margin:0}
 .sending-overlay.show{display:flex;opacity:1;pointer-events:auto}
 .sending-overlay .ck-ring{width:72px;height:72px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(139,92,200,.5);animation:popIn .5s cubic-bezier(.22,1,.36,1)}
 @keyframes popIn{0%{transform:scale(0) rotate(-30deg)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
@@ -2463,6 +2463,12 @@ function closeDisclaimer() {
     var el = document.getElementById(id);
     if (el && el.parentNode) el.parentNode.removeChild(el);
   });
+  // Android mantém scroll position após remoção de elemento — forçar topo
+  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+  var app = document.getElementById('app');
+  if (app) app.scrollTop = 0;
 }
 
 // ── navToForm(): ponto único de entrada no formulário pelo nav/menu
