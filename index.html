@@ -2512,6 +2512,7 @@ function navTo(id) {
   t.style.display = 'block';
   void t.offsetWidth;
   t.classList.add('active');
+  _currentScreenId = id;
   // Update both bottom nav and sidebar
   document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.screen === id));
   document.querySelectorAll('.sidebar-nav-item').forEach(i => i.classList.toggle('active', i.dataset.screen === id));
@@ -2527,7 +2528,70 @@ function navTo(id) {
     const s0 = document.getElementById('step0');
     if (s0) s0.style.display = 'block';
   }
+  // Empurrar estado no histórico para interceptar botão voltar do Android
+  _pushNav(id, id === 'form' ? currentStep : null);
 }
+
+// ── Android Back Button — History API ────────────────────────
+// Cada navTo e cada avanço de step empurra um estado no histórico.
+// O botão físico "voltar" dispara popstate e nós navegamos internamente.
+
+let _currentScreenId = 'home';
+let _historyReady = false;
+
+function _pushNav(screenId, step) {
+  if (!_historyReady) return;
+  const state = { screen: screenId, step: step || null };
+  history.pushState(state, '', '#' + screenId + (step ? '-s' + step : ''));
+}
+
+window.addEventListener('popstate', function(e) {
+  const state = e.state;
+  if (!state) {
+    // Sem estado — estamos no entry point, voltar para home
+    if (_currentScreenId !== 'home') {
+      _historyReady = false; // evitar loop
+      navTo('home');
+      _historyReady = true;
+    }
+    // Se já estamos na home, deixar o browser sair normalmente
+    return;
+  }
+  const targetScreen = state.screen || 'home';
+  const targetStep   = state.step;
+
+  _historyReady = false; // pausar pushState durante navegação interna
+
+  if (targetScreen === 'form' && targetStep !== null) {
+    // Voltar para step anterior dentro do formulário
+    if (_currentScreenId !== 'form') {
+      // Estávamos em outra tela, ir para o form no step certo
+      document.querySelectorAll('.screen.active').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+      const formEl = document.getElementById('form');
+      formEl.style.display = 'block';
+      void formEl.offsetWidth;
+      formEl.classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.screen === 'form'));
+      _currentScreenId = 'form';
+    }
+    // Ir para o step indicado sem validação
+    if (typeof animStep === 'function' && currentStep !== targetStep) {
+      animStep(currentStep, targetStep);
+    }
+  } else {
+    // Navegar para a tela indicada
+    navTo(targetScreen);
+  }
+
+  _historyReady = true;
+});
+
+// Inicializar histórico após DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+  // Entry state (sem pushState — é o estado base)
+  history.replaceState({ screen: 'home', step: null }, '', '#home');
+  _historyReady = true;
+});
 
 // Step navigation
 let currentStep = 1;
@@ -2573,6 +2637,8 @@ function animStep(from, to) {
   currentStep = to;
   updateProgress();
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Empurrar step no histórico para interceptar botão voltar do Android
+  _pushNav('form', to);
 }
 
 // updateProgress() definida abaixo como updateProgressMulti (versão única e completa)
