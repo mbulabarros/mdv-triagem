@@ -1263,7 +1263,6 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     padding:7px 14px;
     display:flex;align-items:center;gap:8px;
     font-size:.67rem;color:var(--text-soft);line-height:1.4;
-    position:sticky;top:0;z-index:100;
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   }
   .disclaimer-banner strong{color:var(--violet-dark);font-weight:800}
@@ -1470,21 +1469,21 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
 <div class="toast" id="toast"></div>
 
+
+<!-- ==================== HOME ==================== -->
+<div id="home" class="screen active" style="padding:0">
+
   <div class="disclaimer-banner" id="disclaimerBanner">
     <span class="disc-icon">ℹ️</span>
     <span><strong>Ferramenta de pré-triagem clínica.</strong> Este formulário não substitui regulação oficial, prontuário eletrônico, encaminhamento formal nem avaliação médica presencial. A classificação apresentada é apenas inicial. <strong>Casos com sinais de gravidade exigem contato direto imediato com a MDV.</strong></span>
     <span class="disc-close" onclick="document.getElementById('disclaimerBanner').style.display='none'" title="Fechar">✕</span>
   </div>
-
-  <!-- FIX v5: indicador de conectividade -->
   <div class="disclaimer-banner" id="offlineBanner" style="display:none;background:linear-gradient(135deg,rgba(230,126,34,.08),rgba(231,76,60,.05));border-bottom-color:rgba(230,126,34,.2)">
     <span class="disc-icon">📡</span>
     <span><strong style="color:#c0621a">Modo offline.</strong> O formulário funciona normalmente. O envio pelo WhatsApp e o mapa requerem conexão com a internet.</span>
     <span class="disc-close" onclick="document.getElementById('offlineBanner').style.display='none'" title="Fechar">✕</span>
   </div>
 
-<!-- ==================== HOME ==================== -->
-<div id="home" class="screen active" style="padding:0">
   <div class="hero">
     <!-- Ultrassom SVG animado -->
     <div class="hero-illustration" aria-hidden="true">
