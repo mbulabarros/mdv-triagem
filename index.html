@@ -1309,8 +1309,9 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   .screen{display:none!important}
   .screen.active{display:block!important}
   .splash{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
-  #home.screen.active{padding:0!important;overflow:hidden!important}
-  #home .hero{margin-top:0!important}
+  #home.screen.active{padding:0!important;margin:0!important;overflow:hidden!important}
+  #home.screen.active > *:first-child{margin-top:0!important;padding-top:0!important}
+  #home .hero{margin-top:0!important;padding-top:28px!important}
   #home .footer{margin-top:22px!important;padding-bottom:12px!important}
   /* Mobile: bottom-nav fixo + safe area */
   @media(max-width:767px){
