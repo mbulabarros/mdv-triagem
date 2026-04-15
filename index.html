@@ -2547,39 +2547,29 @@ function _pushNav(screenId, step) {
 
 window.addEventListener('popstate', function(e) {
   const state = e.state;
-  if (!state) {
-    // Sem estado — estamos no entry point, voltar para home
+
+  // Estado base — reempurrar home para não fechar a aba
+  if (!state || state.base) {
+    history.pushState({ screen: 'home', step: null }, '', '#home');
     if (_currentScreenId !== 'home') {
-      _historyReady = false; // evitar loop
+      _historyReady = false;
       navTo('home');
       _historyReady = true;
     }
-    // Se já estamos na home, deixar o browser sair normalmente
     return;
   }
+
   const targetScreen = state.screen || 'home';
   const targetStep   = state.step;
 
-  _historyReady = false; // pausar pushState durante navegação interna
+  _historyReady = false;
 
-  if (targetScreen === 'form' && targetStep !== null) {
-    // Voltar para step anterior dentro do formulário
-    if (_currentScreenId !== 'form') {
-      // Estávamos em outra tela, ir para o form no step certo
-      document.querySelectorAll('.screen.active').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
-      const formEl = document.getElementById('form');
-      formEl.style.display = 'block';
-      void formEl.offsetWidth;
-      formEl.classList.add('active');
-      document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.screen === 'form'));
-      _currentScreenId = 'form';
-    }
-    // Ir para o step indicado sem validação
+  if (targetScreen === 'form' && targetStep !== null && _currentScreenId === 'form') {
+    // Voltar step dentro do formulário
     if (typeof animStep === 'function' && currentStep !== targetStep) {
       animStep(currentStep, targetStep);
     }
-  } else {
-    // Navegar para a tela indicada
+  } else if (targetScreen !== _currentScreenId) {
     navTo(targetScreen);
   }
 
@@ -2588,8 +2578,10 @@ window.addEventListener('popstate', function(e) {
 
 // Inicializar histórico após DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
-  // Entry state (sem pushState — é o estado base)
-  history.replaceState({ screen: 'home', step: null }, '', '#home');
+  // Criar dois estados: base (sem saída) + home atual
+  // Assim o primeiro "voltar" sempre cai no popstate em vez de fechar a aba
+  history.replaceState({ screen: 'home', step: null, base: true }, '', '#home');
+  history.pushState({ screen: 'home', step: null }, '', '#home');
   _historyReady = true;
 });
 
