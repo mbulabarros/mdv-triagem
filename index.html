@@ -1309,7 +1309,8 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   .screen{display:none!important}
   .screen.active{display:block!important}
   .splash{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
-  #home.screen.active{padding:0!important}
+  #home.screen.active{padding:0!important;overflow:hidden!important}
+  #home .hero{margin-top:0!important}
   #home .footer{margin-top:22px!important;padding-bottom:12px!important}
   /* Mobile: bottom-nav fixo + safe area */
   @media(max-width:767px){
@@ -1472,24 +1473,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
 
 <!-- ==================== HOME ==================== -->
-<div id="home" class="screen active" style="padding:0">
-
-  <div class="disclaimer-banner" id="disclaimerBanner">
-    <span class="disc-icon">ℹ️</span>
-    <span><strong>Ferramenta de pré-triagem clínica.</strong> Este formulário não substitui regulação oficial, prontuário eletrônico, encaminhamento formal nem avaliação médica presencial. A classificação apresentada é apenas inicial. <strong>Casos com sinais de gravidade exigem contato direto imediato com a MDV.</strong></span>
-    <span class="disc-close" onclick="
-      document.getElementById('disclaimerBanner').style.display='none';
-      var hero=document.querySelector('#home .hero');
-      if(hero) hero.style.paddingTop='max(28px,calc(env(safe-area-inset-top) + 16px))';
-    " title="Fechar">✕</span>
-  </div>
-  <div class="disclaimer-banner" id="offlineBanner" style="display:none;background:linear-gradient(135deg,rgba(230,126,34,.08),rgba(231,76,60,.05));border-bottom-color:rgba(230,126,34,.2)">
-    <span class="disc-icon">📡</span>
-    <span><strong style="color:#c0621a">Modo offline.</strong> O formulário funciona normalmente. O envio pelo WhatsApp e o mapa requerem conexão com a internet.</span>
-    <span class="disc-close" onclick="document.getElementById('offlineBanner').style.display='none'" title="Fechar">✕</span>
-  </div>
-
-  <div class="hero">
+<div id="home" class="screen active" style="padding:0"><div class="disclaimer-banner" id="disclaimerBanner"><span class="disc-icon">ℹ️</span><span><strong>Ferramenta de pré-triagem clínica.</strong> Este formulário não substitui regulação oficial, prontuário eletrônico, encaminhamento formal nem avaliação médica presencial. A classificação apresentada é apenas inicial. <strong>Casos com sinais de gravidade exigem contato direto imediato com a MDV.</strong></span><span class="disc-close" onclick="closeDisclaimer()" title="Fechar">✕</span></div><div class="disclaimer-banner" id="offlineBanner" style="display:none;background:linear-gradient(135deg,rgba(230,126,34,.08),rgba(231,76,60,.05));border-bottom-color:rgba(230,126,34,.2)"><span class="disc-icon">📡</span><span><strong style="color:#c0621a">Modo offline.</strong> O formulário funciona normalmente. O envio pelo WhatsApp e o mapa requerem conexão com a internet.</span><span class="disc-close" onclick="document.getElementById('offlineBanner').style.display='none'" title="Fechar">✕</span></div><div class="hero">
     <!-- Ultrassom SVG animado -->
     <div class="hero-illustration" aria-hidden="true">
       <svg viewBox="0 0 320 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
@@ -2467,6 +2451,12 @@ let urgencia = 'eletivo';        // Medicina Fetal
 let urgenciaCardio = 'eletivo';  // Cardiologia Fetal
 let currentCaseID = null;
 let _lastSentCaseID = null;      // FIX E: rastrear último envio para feedback
+
+// ── Fechar disclaimer — remove do DOM para não deixar espaço residual
+function closeDisclaimer() {
+  var b = document.getElementById('disclaimerBanner');
+  if (b) b.parentNode.removeChild(b);
+}
 
 // ── navToForm(): ponto único de entrada no formulário pelo nav/menu
 // Regras:
