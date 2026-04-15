@@ -38,7 +38,7 @@
      - Scroll gerenciado pelo iframe do Google Sites
   ══════════════════════════════════════ */
   html {
-    height: auto !important;
+    height: fit-content !important;
     min-height: 0 !important;
   }
   body {
@@ -49,9 +49,13 @@
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
-    height: auto !important;
+    height: fit-content !important;
     min-height: 0 !important;
     box-sizing: border-box !important;
+  }
+  #outerWrap, .app, #home {
+    height: fit-content !important;
+    min-height: 0 !important;
   }
   #outerWrap {
     width: 100% !important;
@@ -1302,6 +1306,56 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   }
 
 </style>
+
+<script>
+// ── Correção de altura visionária ─────────────────────────
+(function fixBodyHeight() {
+  function shrink() {
+    // Forçar reflow removendo altura fixa
+    document.documentElement.style.removeProperty('height');
+    document.body.style.removeProperty('height');
+    document.body.style.height = 'fit-content';
+    document.documentElement.style.height = 'fit-content';
+    
+    // Medir o conteúdo real
+    var wrap = document.getElementById('outerWrap');
+    if (wrap) {
+      var realH = wrap.getBoundingClientRect().height;
+      document.body.style.height = realH + 'px';
+      document.documentElement.style.height = realH + 'px';
+    }
+  }
+
+  // Rodar imediatamente e após cada mudança
+  document.addEventListener('DOMContentLoaded', shrink);
+  window.addEventListener('load', shrink);
+  
+  // Observar mudanças no outerWrap
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(function(entries) {
+      for (var e of entries) {
+        var h = e.contentRect.height;
+        if (h > 0 && Math.abs(h - window.innerHeight) > 50) {
+          document.body.style.height = h + 'px';
+          document.documentElement.style.height = h + 'px';
+        }
+      }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+      var wrap = document.getElementById('outerWrap');
+      if (wrap) ro.observe(wrap);
+    });
+  }
+  
+  // Também ao navegar entre screens
+  var origNavTo = window.navTo;
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(shrink, 100);
+    setTimeout(shrink, 500);
+    setTimeout(shrink, 1000);
+  });
+})();
+</script>
 </head>
 <body>
 
