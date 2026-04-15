@@ -31,54 +31,45 @@
 
 <style>
   /* ══════════════════════════════════════
-     GOOGLE SITES IFRAME COMPATIBILITY
-     - Sem position:fixed (não funciona em iframe cross-origin)
-     - Sem overflow:hidden no body (quebra scroll do iframe)
-     - Sem height/min-height:100vh (iframe tem altura própria)
-     - Scroll gerenciado pelo iframe do Google Sites
+     MOBILE FULL-SCREEN — STANDALONE MODE
+     - Suporte a standalone (Add to Home Screen)
+     - Preenche toda a tela no mobile
+     - Scroll gerenciado pelo próprio documento
   ══════════════════════════════════════ */
   html {
-    height: fit-content !important;
-    min-height: 0 !important;
+    height: 100%;
+    min-height: 100%;
   }
   body {
-    overflow: visible !important;
-    overflow-y: visible !important;
     overflow-x: hidden !important;
+    overflow-y: auto !important;
     background: var(--cream, #F8F5FD) !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
-    height: fit-content !important;
-    min-height: 0 !important;
+    min-height: 100% !important;
     box-sizing: border-box !important;
-  }
-  #outerWrap, .app, #home {
-    height: fit-content !important;
-    min-height: 0 !important;
+    -webkit-overflow-scrolling: touch;
   }
   #outerWrap {
     width: 100% !important;
     margin: 0 !important;
-    height: auto !important;
-    min-height: 0 !important;
+    min-height: 100% !important;
     box-sizing: border-box !important;
   }
   .app {
     max-width: 100% !important;
     width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
+    min-height: 100svh !important;
     margin: 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
-    /* Desktop: sem padding-bottom (bottom-nav oculto) */
     padding-bottom: 0 !important;
     box-sizing: border-box !important;
     box-shadow: none !important;
     background: var(--cream, #F8F5FD) !important;
   }
-  /* Mobile: padding para o bottom-nav sticky */
+  /* Mobile: padding para o bottom-nav fixo */
   @media (max-width: 767px) {
     .app {
       padding-bottom: 70px !important;
@@ -114,10 +105,10 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;overflow-wrap:break-word;word-break:break-word}
 *::-webkit-scrollbar{width:4px}*::-webkit-scrollbar-thumb{background:var(--border)}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:var(--cream);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:0;height:auto}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:var(--cream);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100%;}
 
 /* ===== SPLASH ===== */
-.splash{position:relative;width:100%;min-height:auto;z-index:10;background:linear-gradient(150deg,#2A0D50 0%,#5A1F8A 45%,#9E2D72 75%,#D43A6E 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .25s ease,transform .3s cubic-bezier(.22,1,.36,1)}
+.splash{position:relative;width:100%;min-height:100svh;z-index:10;background:linear-gradient(150deg,#2A0D50 0%,#5A1F8A 45%,#9E2D72 75%,#D43A6E 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .25s ease,transform .3s cubic-bezier(.22,1,.36,1)}
 .splash.hide{display:none !important;opacity:0;pointer-events:none;visibility:hidden;height:0 !important;overflow:hidden !important;margin:0 !important;padding:0 !important}
 .splash-orb{position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(232,67,122,.18),transparent 70%);animation:orb 3s ease-in-out infinite alternate}
 @keyframes orb{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.2);opacity:.9}}
@@ -131,7 +122,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Ar
 @keyframes barSlide{0%{transform:translateX(-150%)}100%{transform:translateX(350%)}};@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* ===== LAYOUT ===== */
-.app{max-width:100%;width:100%;margin:0;background:var(--cream);position:relative;padding-bottom:70px;min-height:0;height:auto}
+.app{max-width:100%;width:100%;margin:0;background:var(--cream);position:relative;padding-bottom:70px;min-height:100svh}
 .screen{padding:20px 18px;display:none;position:relative;width:100%;box-sizing:border-box}
 .screen.active{display:block;animation:screenIn .4s cubic-bezier(.22,1,.36,1) forwards}
 @keyframes screenIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
@@ -301,11 +292,11 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   ══════════════════════════════════════ */
 
   /* iOS rubber-band scroll fix */
-  html{}
-  body{overflow-y:visible;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+  html{height:100%}
+  body{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;min-height:100%}
 
   /* Prevent iOS text size adjust on rotation */
-  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;height:auto}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
   /* Safe area insets — notch / home indicator / Dynamic Island */
   .app{padding-bottom:70px}
@@ -4619,12 +4610,12 @@ openWA = function(specialty) {
 
 
 <script>
-// FULLSCREEN FIX: remover alturas inline residuais
+// FULLSCREEN FIX: remover alturas inline residuais sem quebrar min-height
 window.addEventListener('load', function() {
   document.documentElement.style.removeProperty('height');
   document.body.style.removeProperty('height');
   var w = document.getElementById('outerWrap');
-  if (w) { w.style.removeProperty('height'); w.style.removeProperty('min-height'); }
+  if (w) { w.style.removeProperty('height'); }
 }, { once: true });
 </script>
 </body>
