@@ -1305,6 +1305,28 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     -webkit-tap-highlight-color:transparent;
   }
 
+
+  /* ══════════════════════════════════════════════════════════
+     FULLSCREEN FIX — 100% viewport em todos os dispositivos
+  ══════════════════════════════════════════════════════════ */
+  html {height:100%!important;min-height:100vh!important;min-height:100dvh!important}
+  body {height:100%!important;min-height:100vh!important;min-height:100dvh!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;margin:0!important;padding:0!important}
+  #outerWrap{width:100%!important;min-height:100vh!important;min-height:100dvh!important;height:auto!important;margin:0!important;box-sizing:border-box!important}
+  .app{max-width:100%!important;width:100%!important;min-height:100vh!important;min-height:100dvh!important;height:auto!important;margin:0!important;box-sizing:border-box!important;background:var(--cream,#F8F5FD)!important;display:flex!important;flex-direction:column!important}
+  .splash{min-height:100vh!important;min-height:100dvh!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
+  .screen.active{display:flex!important;flex-direction:column!important;flex:1!important}
+  #home.screen.active{padding:0!important}
+  #home>div[style]{flex:1!important;display:flex!important;flex-direction:column!important}
+  #home .footer{margin-top:auto!important;padding-bottom:12px!important}
+  #form.screen.active,#about.screen.active,#criteria.screen.active,#contact.screen.active,#status.screen.active{flex:1!important}
+  @media(max-width:767px){body{background:var(--cream,#F8F5FD)!important}.app{padding-bottom:72px!important}.bottom-nav{position:fixed!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;z-index:1000!important;border-radius:0!important;border-top-left-radius:var(--r-lg,22px)!important;border-top-right-radius:var(--r-lg,22px)!important;padding-bottom:max(8px,env(safe-area-inset-bottom))!important;background:var(--white,#fff)!important}.sidebar{display:none!important;position:absolute!important;left:-9999px!important;visibility:hidden!important}}
+  @media(min-width:768px){body{background:#1e1030!important;overflow:hidden!important;height:100vh!important;height:100dvh!important}#outerWrap{display:flex!important;flex-direction:row!important;align-items:stretch!important;height:100vh!important;height:100dvh!important;min-height:0!important;overflow:hidden!important}.sidebar{display:flex!important;flex-direction:column!important;position:relative!important;height:100vh!important;height:100dvh!important;overflow-y:auto!important;flex-shrink:0!important;visibility:visible!important;pointer-events:auto!important;left:auto!important}.app{flex:1!important;min-width:0!important;height:100vh!important;height:100dvh!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;padding-bottom:0!important}.bottom-nav{display:none!important}.splash{min-height:100vh!important;min-height:100dvh!important}.screen.active{min-height:100%!important}}
+  @media(min-width:1100px){.sidebar{width:280px!important;min-width:280px!important}}
+  @media(min-width:1400px){.sidebar{width:300px!important;min-width:300px!important}}
+  @media(display-mode:standalone){html,body{height:100%!important;min-height:100vh!important;min-height:100dvh!important}}
+  @media(display-mode:standalone) and (max-width:767px){.bottom-nav{padding-bottom:max(12px,env(safe-area-inset-bottom))!important}.app{padding-bottom:max(80px,calc(70px + env(safe-area-inset-bottom)))!important}}
+  @media(max-width:767px) and (orientation:landscape){.app{min-height:100vh!important;min-height:100dvh!important;padding-bottom:64px!important}}
+
 </style>
 
 <script>
@@ -1314,8 +1336,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     // Forçar reflow removendo altura fixa
     document.documentElement.style.removeProperty('height');
     document.body.style.removeProperty('height');
-    document.body.style.height = 'fit-content';
-    document.documentElement.style.height = 'fit-content';
+    return; // FULLSCREEN FIX: CSS controla o layout
     
     // Medir o conteúdo real
     var wrap = document.getElementById('outerWrap');
@@ -1336,8 +1357,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
       for (var e of entries) {
         var h = e.contentRect.height;
         if (h > 0 && Math.abs(h - window.innerHeight) > 50) {
-          document.body.style.height = h + 'px';
-          document.documentElement.style.height = h + 'px';
+          // FULLSCREEN FIX: desativado
         }
       }
     });
@@ -4497,6 +4517,7 @@ openWA = function(specialty) {
 <script>
 // ── Google Sites: escapar padding lateral da seção ──────────
 (function escapeIframePadding() {
+  return; // FULLSCREEN FIX
   function apply() {
     try {
       // Detecta quanto espaço sobra de cada lado comparando
@@ -4548,6 +4569,7 @@ openWA = function(specialty) {
 <script>
 // ── Auto-resize iframe para Google Sites ──────────────────
 (function autoResizeIframe() {
+  return; // FULLSCREEN FIX
   function sendHeight() {
     var h = Math.max(
       document.body.scrollHeight,
@@ -4595,5 +4617,15 @@ openWA = function(specialty) {
 })();
 </script>
 
+
+<script>
+// FULLSCREEN FIX: remover alturas inline residuais
+window.addEventListener('load', function() {
+  document.documentElement.style.removeProperty('height');
+  document.body.style.removeProperty('height');
+  var w = document.getElementById('outerWrap');
+  if (w) { w.style.removeProperty('height'); w.style.removeProperty('min-height'); }
+}, { once: true });
+</script>
 </body>
 </html>
