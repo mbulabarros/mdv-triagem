@@ -279,7 +279,8 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .nav-item.active::after{content:'';display:block;width:4px;height:4px;border-radius:50%;background:var(--purple);margin:2px auto 0}
 
 /* ===== MISC ===== */
-.toast{display:block;margin:8px auto;background:var(--navy);color:#fff;padding:11px 18px;border-radius:50px;font-size:.78rem;font-weight:700;opacity:0;transition:opacity .3s;z-index:200;pointer-events:none;white-space:normal;max-width:calc(100% - 32px);text-align:center;line-height:1.4}
+.toast{display:block;margin:0;height:0;overflow:hidden;background:var(--navy);color:#fff;padding:0;border-radius:50px;font-size:.78rem;font-weight:700;opacity:0;transition:opacity .3s,height .3s,padding .3s,margin .3s;z-index:200;pointer-events:none;white-space:normal;max-width:calc(100% - 32px);text-align:center;line-height:1.4}
+.toast.show{height:auto;margin:8px auto;padding:11px 18px;opacity:1;pointer-events:auto}
 .toast.show{opacity:1;pointer-events:auto}
 .info-banner{background:var(--purple-bg);border:1px solid rgba(107,63,160,.2);border-radius:var(--r-sm);padding:10px 12px;font-size:.77rem;color:var(--purple);margin-bottom:12px;line-height:1.45;display:flex;gap:8px;align-items:flex-start}
 .info-banner .material-icons-round{font-size:16px;margin-top:1px;flex-shrink:0}
@@ -1473,8 +1474,11 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 <div class="toast" id="toast"></div>
 
 
+<!-- Banners: fora do #home para não afetar layout -->
+<div class="disclaimer-banner" id="disclaimerBanner" style="position:relative;z-index:50"><span class="disc-icon">ℹ️</span><span><strong>Ferramenta de pré-triagem clínica.</strong> Este formulário não substitui regulação oficial, prontuário eletrônico, encaminhamento formal nem avaliação médica presencial. A classificação apresentada é apenas inicial. <strong>Casos com sinais de gravidade exigem contato direto imediato com a MDV.</strong></span><span class="disc-close" onclick="closeDisclaimer()" title="Fechar">✕</span></div><div class="disclaimer-banner" id="offlineBanner" style="display:none;background:linear-gradient(135deg,rgba(230,126,34,.08),rgba(231,76,60,.05));border-bottom-color:rgba(230,126,34,.2)"><span class="disc-icon">📡</span><span><strong style="color:#c0621a">Modo offline.</strong> O formulário funciona normalmente. O envio pelo WhatsApp e o mapa requerem conexão com a internet.</span><span class="disc-close" onclick="document.getElementById('offlineBanner').style.display='none'" title="Fechar">✕</span></div>
+
 <!-- ==================== HOME ==================== -->
-<div id="home" class="screen active" style="padding:0"><div class="disclaimer-banner" id="disclaimerBanner"><span class="disc-icon">ℹ️</span><span><strong>Ferramenta de pré-triagem clínica.</strong> Este formulário não substitui regulação oficial, prontuário eletrônico, encaminhamento formal nem avaliação médica presencial. A classificação apresentada é apenas inicial. <strong>Casos com sinais de gravidade exigem contato direto imediato com a MDV.</strong></span><span class="disc-close" onclick="closeDisclaimer()" title="Fechar">✕</span></div><div class="disclaimer-banner" id="offlineBanner" style="display:none;background:linear-gradient(135deg,rgba(230,126,34,.08),rgba(231,76,60,.05));border-bottom-color:rgba(230,126,34,.2)"><span class="disc-icon">📡</span><span><strong style="color:#c0621a">Modo offline.</strong> O formulário funciona normalmente. O envio pelo WhatsApp e o mapa requerem conexão com a internet.</span><span class="disc-close" onclick="document.getElementById('offlineBanner').style.display='none'" title="Fechar">✕</span></div><div class="hero">
+<div id="home" class="screen active" style="padding:0"><div class="hero">
     <!-- Ultrassom SVG animado -->
     <div class="hero-illustration" aria-hidden="true">
       <svg viewBox="0 0 320 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
@@ -2455,8 +2459,10 @@ let _lastSentCaseID = null;      // FIX E: rastrear último envio para feedback
 
 // ── Fechar disclaimer — remove do DOM para não deixar espaço residual
 function closeDisclaimer() {
-  var b = document.getElementById('disclaimerBanner');
-  if (b) b.parentNode.removeChild(b);
+  ['disclaimerBanner','offlineBanner'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+  });
 }
 
 // ── navToForm(): ponto único de entrada no formulário pelo nav/menu
@@ -2533,19 +2539,22 @@ function navTo(id) {
 
 let _currentScreenId = 'home';
 let _historyReady = false;
+let _historySupported = false; // detectado na inicialização
 
 function _pushNav(screenId, step) {
-  if (!_historyReady) return;
-  const state = { screen: screenId, step: step || null };
-  history.pushState(state, '', '#' + screenId + (step ? '-s' + step : ''));
+  if (!_historyReady || !_historySupported) return;
+  try {
+    const state = { screen: screenId, step: step || null };
+    history.pushState(state, '', '#' + screenId + (step ? '-s' + step : ''));
+  } catch(e) { _historySupported = false; }
 }
 
 window.addEventListener('popstate', function(e) {
+  if (!_historySupported) return;
   const state = e.state;
 
-  // Estado base — reempurrar home para não fechar a aba
   if (!state || state.base) {
-    history.pushState({ screen: 'home', step: null }, '', '#home');
+    try { history.pushState({ screen: 'home', step: null }, '', '#home'); } catch(e) {}
     if (_currentScreenId !== 'home') {
       _historyReady = false;
       navTo('home');
@@ -2556,11 +2565,9 @@ window.addEventListener('popstate', function(e) {
 
   const targetScreen = state.screen || 'home';
   const targetStep   = state.step;
-
   _historyReady = false;
 
   if (targetScreen === 'form' && targetStep !== null && _currentScreenId === 'form') {
-    // Voltar step dentro do formulário
     if (typeof animStep === 'function' && currentStep !== targetStep) {
       animStep(currentStep, targetStep);
     }
@@ -2573,11 +2580,15 @@ window.addEventListener('popstate', function(e) {
 
 // Inicializar histórico após DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
-  // Criar dois estados: base (sem saída) + home atual
-  // Assim o primeiro "voltar" sempre cai no popstate em vez de fechar a aba
-  history.replaceState({ screen: 'home', step: null, base: true }, '', '#home');
-  history.pushState({ screen: 'home', step: null }, '', '#home');
-  _historyReady = true;
+  try {
+    history.replaceState({ screen: 'home', step: null, base: true }, '', '#home');
+    history.pushState({ screen: 'home', step: null }, '', '#home');
+    _historySupported = true;
+    _historyReady = true;
+  } catch(e) {
+    // Contexto sem permissão (iframe cross-origin, etc) — botão voltar não interceptado
+    _historySupported = false;
+  }
 });
 
 // Step navigation
