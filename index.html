@@ -130,7 +130,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Ar
 @keyframes screenIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
 /* ===== HERO ===== */
-.hero{background:linear-gradient(150deg,#3D1266 0%,#6B3FA0 45%,#A8307A 75%,#E8437A 100%);padding:28px 20px 24px;padding-top:max(28px,calc(env(safe-area-inset-top) + 16px));text-align:center;position:relative;overflow:hidden}
+.hero{background:linear-gradient(150deg,#3D1266 0%,#6B3FA0 45%,#A8307A 75%,#E8437A 100%);padding:28px 20px 24px;text-align:center;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(26,122,110,.08),transparent 70%)}
 .hero::after{content:'';position:absolute;bottom:-30px;left:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(201,107,138,.05),transparent 70%)}
 .hero-logo{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#E8437A,#8B5CC8);display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(232,67,122,.4),0 0 0 4px rgba(255,255,255,.1);margin-bottom:14px;position:relative;z-index:1}
@@ -1261,6 +1261,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     background:linear-gradient(135deg,rgba(107,63,160,.08),rgba(232,67,122,.05));
     border-bottom:1px solid rgba(107,63,160,.12);
     padding:7px 14px;
+    padding-top:max(7px,calc(env(safe-area-inset-top) + 4px));
     display:flex;align-items:center;gap:8px;
     font-size:.67rem;color:var(--text-soft);line-height:1.4;
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
@@ -1476,7 +1477,11 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   <div class="disclaimer-banner" id="disclaimerBanner">
     <span class="disc-icon">ℹ️</span>
     <span><strong>Ferramenta de pré-triagem clínica.</strong> Este formulário não substitui regulação oficial, prontuário eletrônico, encaminhamento formal nem avaliação médica presencial. A classificação apresentada é apenas inicial. <strong>Casos com sinais de gravidade exigem contato direto imediato com a MDV.</strong></span>
-    <span class="disc-close" onclick="document.getElementById('disclaimerBanner').style.display='none'" title="Fechar">✕</span>
+    <span class="disc-close" onclick="
+      document.getElementById('disclaimerBanner').style.display='none';
+      var hero=document.querySelector('#home .hero');
+      if(hero) hero.style.paddingTop='max(28px,calc(env(safe-area-inset-top) + 16px))';
+    " title="Fechar">✕</span>
   </div>
   <div class="disclaimer-banner" id="offlineBanner" style="display:none;background:linear-gradient(135deg,rgba(230,126,34,.08),rgba(231,76,60,.05));border-bottom-color:rgba(230,126,34,.2)">
     <span class="disc-icon">📡</span>
