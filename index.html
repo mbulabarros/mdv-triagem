@@ -31,25 +31,31 @@
 
 <style>
   /* ══════════════════════════════════════
-     MOBILE FULL-SCREEN — STANDALONE MODE
-     - Suporte a standalone (Add to Home Screen)
-     - Preenche toda a tela no mobile
-     - Scroll gerenciado pelo próprio documento
+     GOOGLE SITES IFRAME COMPATIBILITY
+     - Sem position:fixed (não funciona em iframe cross-origin)
+     - Sem overflow:hidden no body (quebra scroll do iframe)
+     - Sem height/min-height:100vh (iframe tem altura própria)
+     - Scroll gerenciado pelo iframe do Google Sites
   ══════════════════════════════════════ */
   html {
-    height: auto;
-    min-height: 0;
+    height: fit-content !important;
+    min-height: 0 !important;
   }
   body {
+    overflow: visible !important;
+    overflow-y: visible !important;
     overflow-x: hidden !important;
-    overflow-y: auto !important;
     background: var(--cream, #F8F5FD) !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
+    height: fit-content !important;
     min-height: 0 !important;
     box-sizing: border-box !important;
-    -webkit-overflow-scrolling: touch;
+  }
+  #outerWrap, .app, #home {
+    height: fit-content !important;
+    min-height: 0 !important;
   }
   #outerWrap {
     width: 100% !important;
@@ -66,22 +72,28 @@
     margin: 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
+    /* Desktop: sem padding-bottom (bottom-nav oculto) */
     padding-bottom: 0 !important;
     box-sizing: border-box !important;
     box-shadow: none !important;
     background: var(--cream, #F8F5FD) !important;
   }
-  /* Mobile: padding para o bottom-nav fixo */
+  /* Mobile: padding para o bottom-nav sticky */
   @media (max-width: 767px) {
     .app {
       padding-bottom: 70px !important;
     }
   }
 
-  /* ── Inline SVG icons (offline-safe) ── */
-  .mdi-icon{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;flex-shrink:0}
-  .mdi-icon svg{width:1em;height:1em;fill:currentColor}
-  .material-icons-round{display:none}/* fallback hidden */
+  /* ── Diretriz Brasileira 2019 — card de classificação de indicação ── */
+  .diretriz-card{background:linear-gradient(135deg,rgba(107,63,160,.04),rgba(232,67,122,.03));border:1.5px solid rgba(107,63,160,.18);border-radius:var(--r-md);padding:12px 14px;display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .diretriz-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .diretriz-lbl{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px}
+  .diretriz-val{font-size:.92rem;font-weight:800;color:var(--violet-deep);padding:3px 10px;border-radius:8px;background:var(--white);border:1px solid var(--border-soft)}
+  .diretriz-val.classe-I{color:#962d22;background:rgba(192,57,43,.08);border-color:rgba(192,57,43,.25)}
+  .diretriz-val.classe-IIa{color:#8B5E00;background:rgba(243,156,18,.08);border-color:rgba(243,156,18,.25)}
+  .diretriz-val.classe-IIb{color:#6B4A00;background:rgba(243,200,18,.08);border-color:rgba(243,200,18,.2)}
+  .diretriz-val.classe-III{color:#1a7a40;background:rgba(39,174,96,.08);border-color:rgba(39,174,96,.25)}
 
 :root{
   /* ── Identidade Visual MDV 2020 ── */
@@ -107,10 +119,10 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;overflow-wrap:break-word;word-break:break-word}
 *::-webkit-scrollbar{width:4px}*::-webkit-scrollbar-thumb{background:var(--border)}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:var(--cream);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;background:var(--cream);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:0;height:auto}
 
 /* ===== SPLASH ===== */
-.splash{position:relative;width:100%;min-height:100svh;z-index:10;background:linear-gradient(150deg,#2A0D50 0%,#5A1F8A 45%,#9E2D72 75%,#D43A6E 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .25s ease,transform .3s cubic-bezier(.22,1,.36,1)}
+.splash{position:relative;width:100%;min-height:auto;z-index:10;background:linear-gradient(150deg,#2A0D50 0%,#5A1F8A 45%,#9E2D72 75%,#D43A6E 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .25s ease,transform .3s cubic-bezier(.22,1,.36,1)}
 .splash.hide{display:none !important;opacity:0;pointer-events:none;visibility:hidden;height:0 !important;overflow:hidden !important;margin:0 !important;padding:0 !important}
 .splash-orb{position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(232,67,122,.18),transparent 70%);animation:orb 3s ease-in-out infinite alternate}
 @keyframes orb{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.2);opacity:.9}}
@@ -187,7 +199,14 @@ input[type="text"],input[type="tel"],input[type="number"],input[type="date"],sel
   background:var(--cream);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:16px;color:var(--text);
   transition:border-color .2s,box-shadow .2s,background .2s;outline:none}
 input:focus,select:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,122,110,.09);background:var(--white)}
-input.invalid,select.invalid{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,107,138,.09)}
+input.invalid,select.invalid,textarea.invalid{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,107,138,.09)}
+/* v4: destaque pulsante forte aplicado quando navegação automática traz usuário até o campo */
+input.field-pulse,select.field-pulse,textarea.field-pulse,.field-pulse{animation:field-pulse-anim 1.6s ease-in-out 3;border-color:var(--rose) !important;background:rgba(232,67,122,.04) !important;position:relative;z-index:1}
+@keyframes field-pulse-anim{0%,100%{box-shadow:0 0 0 0 rgba(232,67,122,.55),0 0 0 0 rgba(232,67,122,.3)}50%{box-shadow:0 0 0 6px rgba(232,67,122,.18),0 0 0 14px rgba(232,67,122,.06)}}
+/* Indicador "olhe aqui" — flutua acima do campo após salto */
+.field-jump-arrow{position:absolute;left:50%;transform:translateX(-50%);top:-38px;background:var(--rose);color:#fff;padding:7px 14px;border-radius:8px;font-size:.78rem;font-weight:700;white-space:nowrap;pointer-events:none;z-index:10;box-shadow:0 6px 20px rgba(232,67,122,.4);animation:arrow-bob 1s ease-in-out infinite}
+.field-jump-arrow::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%) rotate(45deg);width:12px;height:12px;background:var(--rose)}
+@keyframes arrow-bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
 textarea{resize:vertical;min-height:74px}
 select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%235a617a' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:32px}
 
@@ -263,7 +282,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .doc-tag{margin-left:auto;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:10px;background:rgba(138,147,170,.1);color:var(--text-muted)}
 
 /* ===== OVERLAY ===== */
-.sending-overlay{position:relative;width:100%;padding:40px 20px;z-index:300;background:rgba(9,20,40,.92);backdrop-filter:blur(10px);display:none;height:auto;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;border-radius:var(--r-lg);margin:0}
+.sending-overlay{position:relative;width:100%;padding:40px 20px;z-index:300;background:rgba(9,20,40,.92);backdrop-filter:blur(10px);display:none;height:auto;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;border-radius:var(--r-lg);margin:10px 0}
 .sending-overlay.show{display:flex;opacity:1;pointer-events:auto}
 .sending-overlay .ck-ring{width:72px;height:72px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(139,92,200,.5);animation:popIn .5s cubic-bezier(.22,1,.36,1)}
 @keyframes popIn{0%{transform:scale(0) rotate(-30deg)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
@@ -279,9 +298,75 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .nav-item.active::after{content:'';display:block;width:4px;height:4px;border-radius:50%;background:var(--purple);margin:2px auto 0}
 
 /* ===== MISC ===== */
-.toast{display:block;margin:0;height:0;overflow:hidden;background:var(--navy);color:#fff;padding:0;border-radius:50px;font-size:.78rem;font-weight:700;opacity:0;transition:opacity .3s,height .3s,padding .3s,margin .3s;z-index:200;pointer-events:none;white-space:normal;max-width:calc(100% - 32px);text-align:center;line-height:1.4}
-.toast.show{height:auto;margin:8px auto;padding:11px 18px;opacity:1;pointer-events:auto}
-.toast.show{opacity:1;pointer-events:auto}
+/* v3: Toast central, grande, com glassmorphism e animação clara de entrada/saída */
+.toast{position:fixed;left:50%;top:30%;transform:translate(-50%,-50%) scale(.85);background:linear-gradient(135deg,rgba(46,42,84,.96),rgba(74,68,124,.96));color:#fff;padding:18px 26px;border-radius:18px;font-size:.95rem;font-weight:700;opacity:0;transition:opacity .28s ease,transform .28s cubic-bezier(.34,1.56,.64,1);z-index:9999;pointer-events:none;white-space:normal;max-width:min(420px,calc(100vw - 40px));text-align:center;line-height:1.45;box-shadow:0 18px 56px rgba(0,0,0,.35),0 0 0 1px rgba(255,255,255,.08) inset;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:10px}
+/* v5: .sr-only — conteúdo apenas para leitores de tela (acessibilidade WCAG) */
+.sr-only{position:absolute !important;width:1px !important;height:1px !important;padding:0 !important;margin:-1px !important;overflow:hidden !important;clip:rect(0,0,0,0) !important;white-space:nowrap !important;border:0 !important}
+
+/* ── v5.1: Modal de aviso "duas mensagens obrigatórias" ── */
+.two-step-modal{position:fixed;inset:0;background:rgba(20,15,40,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .25s ease;pointer-events:none}
+.two-step-modal.show{opacity:1;pointer-events:auto}
+.two-step-card{background:#fff;border-radius:20px;padding:28px 26px;max-width:480px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.5);text-align:center;transform:translateY(20px) scale(.96);transition:transform .35s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto}
+.two-step-modal.show .two-step-card{transform:translateY(0) scale(1)}
+.two-step-icon{font-size:2.6rem;line-height:1;margin-bottom:8px;animation:two-step-bounce .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes two-step-bounce{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.two-step-card h2{font-size:1.18rem;color:var(--navy);margin:0 0 12px;font-weight:800;line-height:1.3}
+.two-step-lead{font-size:.92rem;color:var(--text-soft);line-height:1.55;margin:0 0 18px}
+.two-step-list{background:linear-gradient(135deg,rgba(107,63,160,.06),rgba(232,67,122,.04));border-radius:14px;padding:14px;margin:0 0 16px;text-align:left}
+.two-step-item{display:flex;gap:12px;align-items:flex-start}
+.two-step-item .ts-num{flex-shrink:0;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--rose));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;box-shadow:0 4px 10px rgba(107,63,160,.3)}
+.two-step-item .ts-body{flex:1;min-width:0}
+.two-step-item .ts-title{font-size:.95rem;font-weight:700;color:var(--navy);line-height:1.3;margin-bottom:3px}
+.two-step-item .ts-desc{font-size:.78rem;color:var(--text-muted);line-height:1.4}
+.two-step-arrow{text-align:center;font-size:1.4rem;color:var(--purple);margin:8px 0;font-weight:700}
+.two-step-warn{background:rgba(245,158,11,.1);border-left:3px solid #f59e0b;padding:10px 14px;border-radius:8px;font-size:.82rem;color:#7a4a00;line-height:1.5;margin:0 0 18px;text-align:left}
+.two-step-actions{display:flex;gap:10px;flex-wrap:wrap}
+.two-step-actions .btn{flex:1;min-width:140px;padding:13px 18px;font-size:.92rem;font-weight:700}
+.two-step-actions .two-step-go{background:linear-gradient(135deg,var(--purple),var(--rose));color:#fff;border:none;box-shadow:0 8px 20px rgba(107,63,160,.35)}
+
+/* ── v5.1: Overlay "envie a 2ª mensagem" — após volta do WhatsApp ── */
+.step2-reminder{position:fixed;inset:0;background:rgba(20,15,40,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .25s ease;pointer-events:none}
+.step2-reminder.show{opacity:1;pointer-events:auto}
+.s2r-card{background:#fff;border-radius:20px;padding:30px 24px;max-width:440px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.5);text-align:center;transform:translateY(30px);transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.step2-reminder.show .s2r-card{transform:translateY(0)}
+.s2r-progress{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px}
+.s2r-step{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.95rem;flex-shrink:0}
+.s2r-step-done{background:linear-gradient(135deg,#2ea043,#38b254);color:#fff;box-shadow:0 4px 12px rgba(46,160,67,.4)}
+.s2r-step-active{background:linear-gradient(135deg,var(--purple),var(--rose));color:#fff;box-shadow:0 4px 12px rgba(107,63,160,.5);animation:s2r-pulse 1.4s ease-in-out infinite}
+@keyframes s2r-pulse{0%,100%{transform:scale(1);box-shadow:0 4px 12px rgba(107,63,160,.5)}50%{transform:scale(1.08);box-shadow:0 6px 20px rgba(107,63,160,.7)}}
+.s2r-line{height:3px;background:linear-gradient(90deg,#2ea043,var(--purple));border-radius:2px;flex:1;max-width:50px}
+.s2r-title{font-size:1.18rem;font-weight:800;color:var(--navy);margin-bottom:10px}
+.s2r-text{font-size:.92rem;color:var(--text-soft);line-height:1.55;margin:0 0 20px}
+.s2r-go{width:100%;padding:14px 18px;font-size:.95rem;font-weight:700;background:linear-gradient(135deg,#1A73E8,#4285F4);color:#fff;border:none;border-radius:14px;cursor:pointer;box-shadow:0 8px 24px rgba(26,115,232,.4);transition:transform .15s,box-shadow .15s;animation:s2r-go-bob 2.2s ease-in-out infinite}
+@keyframes s2r-go-bob{0%,100%{transform:translateY(0);box-shadow:0 8px 24px rgba(26,115,232,.4)}50%{transform:translateY(-3px);box-shadow:0 12px 28px rgba(26,115,232,.55)}}
+.s2r-go:hover{transform:translateY(-2px);animation:none;box-shadow:0 12px 32px rgba(26,115,232,.55)}
+.s2r-skip{display:block;width:100%;background:none;border:none;color:var(--text-muted);font-size:.78rem;text-decoration:underline;cursor:pointer;margin-top:14px;padding:4px}
+.s2r-skip:hover{color:var(--rose)}
+
+/* ── v5.1: Banner persistente de envio pendente (ao reabrir app) ── */
+.pending-step2-banner{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-100px);background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1a1a2e;padding:13px 18px;border-radius:14px;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 28px);z-index:9998;box-shadow:0 14px 40px rgba(245,158,11,.5);transition:transform .35s cubic-bezier(.34,1.56,.64,1);font-size:.85rem;font-weight:600;line-height:1.4}
+.pending-step2-banner.show{transform:translateX(-50%) translateY(0)}
+.pending-step2-banner .ps2-icon{font-size:1.3rem;flex-shrink:0}
+.pending-step2-banner .ps2-text{flex:1;min-width:0}
+.pending-step2-banner .ps2-btn{background:#1a1a2e;color:#fbbf24;border:none;padding:7px 14px;border-radius:8px;font-weight:700;cursor:pointer;font-size:.82rem;flex-shrink:0;transition:transform .15s}
+.pending-step2-banner .ps2-btn:hover{transform:scale(1.05)}
+.pending-step2-banner .ps2-close{background:transparent;border:none;color:#1a1a2e;font-size:1.1rem;cursor:pointer;padding:4px 8px;flex-shrink:0;font-weight:700;opacity:.6}
+.pending-step2-banner .ps2-close:hover{opacity:1}
+@media (max-width:480px){
+  .pending-step2-banner{flex-wrap:wrap;font-size:.78rem;padding:11px 14px}
+  .pending-step2-banner .ps2-text{flex-basis:100%;order:1}
+  .pending-step2-banner .ps2-icon{order:0}
+  .pending-step2-banner .ps2-btn{order:2;flex:1}
+  .pending-step2-banner .ps2-close{order:3}
+}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
+.toast.toast-success{background:linear-gradient(135deg,rgba(46,160,67,.96),rgba(56,178,84,.96));box-shadow:0 18px 56px rgba(46,160,67,.4),0 0 0 1px rgba(255,255,255,.12) inset}
+.toast.toast-warn{background:linear-gradient(135deg,rgba(245,158,11,.96),rgba(251,191,36,.96));color:#1a1a2e;box-shadow:0 18px 56px rgba(245,158,11,.4),0 0 0 1px rgba(255,255,255,.2) inset}
+.toast.toast-error{background:linear-gradient(135deg,rgba(220,38,38,.96),rgba(239,68,68,.96));box-shadow:0 18px 56px rgba(220,38,38,.4),0 0 0 1px rgba(255,255,255,.12) inset}
+.toast .toast-icon{font-size:1.3rem;line-height:1;flex-shrink:0;animation:toast-pop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes toast-pop{0%{transform:scale(0) rotate(-180deg)}60%{transform:scale(1.25) rotate(10deg)}100%{transform:scale(1) rotate(0)}}
+.toast .toast-text{flex:1;min-width:0;text-align:left}
+@media (max-width:480px){.toast{top:35%;font-size:.88rem;padding:16px 22px;max-width:calc(100vw - 28px)}}
 .info-banner{background:var(--purple-bg);border:1px solid rgba(107,63,160,.2);border-radius:var(--r-sm);padding:10px 12px;font-size:.77rem;color:var(--purple);margin-bottom:12px;line-height:1.45;display:flex;gap:8px;align-items:flex-start}
 .info-banner .material-icons-round{font-size:16px;margin-top:1px;flex-shrink:0}
 .footer{text-align:center;font-size:.67rem;color:var(--text-muted);margin-top:22px;line-height:1.5;padding:0 10px}
@@ -295,11 +380,11 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   ══════════════════════════════════════ */
 
   /* iOS rubber-band scroll fix */
-  html{height:auto;min-height:0}
-  body{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;min-height:0}
+  html{}
+  body{overflow-y:visible;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 
   /* Prevent iOS text size adjust on rotation */
-  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;height:auto}
 
   /* Safe area insets — notch / home indicator / Dynamic Island */
   .app{padding-bottom:70px}
@@ -1262,9 +1347,9 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
     background:linear-gradient(135deg,rgba(107,63,160,.08),rgba(232,67,122,.05));
     border-bottom:1px solid rgba(107,63,160,.12);
     padding:7px 14px;
-    padding-top:max(7px,calc(env(safe-area-inset-top) + 4px));
     display:flex;align-items:center;gap:8px;
     font-size:.67rem;color:var(--text-soft);line-height:1.4;
+    position:sticky;top:0;z-index:100;
     backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   }
   .disclaimer-banner strong{color:var(--violet-dark);font-weight:800}
@@ -1301,48 +1386,25 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
 
   /* ══════════════════════════════════════════════════════════
-     MOBILE FIX — conteúdo natural, sem espaço vazio
+     FULLSCREEN FIX — 100% viewport em todos os dispositivos
   ══════════════════════════════════════════════════════════ */
-  html,body{height:auto!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;margin:0!important;padding:0!important}
-  #outerWrap{width:100%!important;height:auto!important;min-height:0!important;margin:0!important;box-sizing:border-box!important;display:block!important}
-  .app{max-width:100%!important;width:100%!important;height:auto!important;min-height:0!important;margin:0!important;box-sizing:border-box!important;background:var(--cream,#F8F5FD)!important;display:block!important}
-  /* Screens: SEMPRE ocultas, exceto a ativa */
-  .screen{display:none!important}
-  .screen.active{display:block!important}
-  .splash{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
-  #home.screen.active{padding:0!important;margin:0!important;overflow:hidden!important}
-  #home.screen.active > *:first-child{margin-top:0!important;padding-top:0!important}
-  #home .hero{margin-top:0!important;padding-top:28px!important}
-  #home .footer{margin-top:22px!important;padding-bottom:12px!important}
-  /* Mobile: bottom-nav fixo + safe area */
-  @media(max-width:767px){
-    body{background:var(--cream,#F8F5FD)!important}
-    .app{padding-bottom:72px!important}
-    .bottom-nav{position:fixed!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;z-index:1000!important;border-radius:0!important;border-top-left-radius:var(--r-lg,22px)!important;border-top-right-radius:var(--r-lg,22px)!important;padding-bottom:max(8px,env(safe-area-inset-bottom))!important;background:var(--white,#fff)!important}
-    .sidebar{display:none!important;position:absolute!important;left:-9999px!important;visibility:hidden!important}
-  }
-  /* Standalone (Add to Home Screen): safe area extra */
-  @media(display-mode:standalone) and (max-width:767px){
-    .bottom-nav{padding-bottom:max(12px,env(safe-area-inset-bottom))!important}
-    .app{padding-bottom:max(80px,calc(70px + env(safe-area-inset-bottom)))!important}
-  }
-  /* Landscape mobile: sem min-height forçado */
-  @media(max-width:767px) and (orientation:landscape){
-    .app{padding-bottom:64px!important}
-  }
-  /* Desktop: layout de tela cheia com sidebar */
-  @media(min-width:768px){
-    body{background:#1e1030!important;overflow:hidden!important;height:100vh!important;height:100dvh!important}
-    #outerWrap{display:flex!important;flex-direction:row!important;align-items:stretch!important;height:100vh!important;height:100dvh!important;min-height:0!important;overflow:hidden!important}
-    .sidebar{display:flex!important;flex-direction:column!important;position:relative!important;height:100vh!important;height:100dvh!important;overflow-y:auto!important;flex-shrink:0!important;visibility:visible!important;pointer-events:auto!important;left:auto!important}
-    .app{flex:1!important;min-width:0!important;height:100vh!important;height:100dvh!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;padding-bottom:0!important}
-    .bottom-nav{display:none!important}
-    .screen{display:none!important}
-    .screen.active{display:block!important;min-height:100%!important}
-    .splash{min-height:100vh!important;min-height:100dvh!important}
-  }
+  html {height:100%!important;min-height:100vh!important;min-height:100dvh!important}
+  body {height:100%!important;min-height:100vh!important;min-height:100dvh!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;margin:0!important;padding:0!important}
+  #outerWrap{width:100%!important;min-height:100vh!important;min-height:100dvh!important;height:auto!important;margin:0!important;box-sizing:border-box!important}
+  .app{max-width:100%!important;width:100%!important;min-height:100vh!important;min-height:100dvh!important;height:auto!important;margin:0!important;box-sizing:border-box!important;background:var(--cream,#F8F5FD)!important;display:flex!important;flex-direction:column!important}
+  .splash{min-height:100vh!important;min-height:100dvh!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
+  .screen.active{display:flex!important;flex-direction:column!important;flex:1!important}
+  #home.screen.active{padding:0!important}
+  #home>div[style]{flex:1!important;display:flex!important;flex-direction:column!important}
+  #home .footer{margin-top:auto!important;padding-bottom:12px!important}
+  #form.screen.active,#about.screen.active,#criteria.screen.active,#contact.screen.active,#status.screen.active{flex:1!important}
+  @media(max-width:767px){body{background:var(--cream,#F8F5FD)!important}.app{padding-bottom:72px!important}.bottom-nav{position:fixed!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;z-index:1000!important;border-radius:0!important;border-top-left-radius:var(--r-lg,22px)!important;border-top-right-radius:var(--r-lg,22px)!important;padding-bottom:max(8px,env(safe-area-inset-bottom))!important;background:var(--white,#fff)!important}.sidebar{display:none!important;position:absolute!important;left:-9999px!important;visibility:hidden!important}}
+  @media(min-width:768px){body{background:#1e1030!important;overflow:hidden!important;height:100vh!important;height:100dvh!important}#outerWrap{display:flex!important;flex-direction:row!important;align-items:stretch!important;height:100vh!important;height:100dvh!important;min-height:0!important;overflow:hidden!important}.sidebar{display:flex!important;flex-direction:column!important;position:relative!important;height:100vh!important;height:100dvh!important;overflow-y:auto!important;flex-shrink:0!important;visibility:visible!important;pointer-events:auto!important;left:auto!important}.app{flex:1!important;min-width:0!important;height:100vh!important;height:100dvh!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;padding-bottom:0!important}.bottom-nav{display:none!important}.splash{min-height:100vh!important;min-height:100dvh!important}.screen.active{min-height:100%!important}}
   @media(min-width:1100px){.sidebar{width:280px!important;min-width:280px!important}}
   @media(min-width:1400px){.sidebar{width:300px!important;min-width:300px!important}}
+  @media(display-mode:standalone){html,body{height:100%!important;min-height:100vh!important;min-height:100dvh!important}}
+  @media(display-mode:standalone) and (max-width:767px){.bottom-nav{padding-bottom:max(12px,env(safe-area-inset-bottom))!important}.app{padding-bottom:max(80px,calc(70px + env(safe-area-inset-bottom)))!important}}
+  @media(max-width:767px) and (orientation:landscape){.app{min-height:100vh!important;min-height:100dvh!important;padding-bottom:64px!important}}
 
 </style>
 
@@ -1471,14 +1533,24 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
+  <div class="disclaimer-banner" id="disclaimerBanner">
+    <span class="disc-icon">ℹ️</span>
+    <span><strong>Ferramenta de pré-triagem clínica.</strong> Este formulário não substitui regulação oficial, prontuário eletrônico, encaminhamento formal nem avaliação médica presencial. A classificação apresentada é apenas inicial. <strong>Casos com sinais de gravidade exigem contato direto imediato com a MDV.</strong></span>
+    <span class="disc-close" onclick="document.getElementById('disclaimerBanner').style.display='none'" title="Fechar">✕</span>
+  </div>
 
-<!-- Banners: fora do #home para não afetar layout -->
-<div class="disclaimer-banner" id="disclaimerBanner" style="position:relative;z-index:50"><span class="disc-icon">ℹ️</span><span><strong>Ferramenta de pré-triagem clínica.</strong> Este formulário não substitui regulação oficial, prontuário eletrônico, encaminhamento formal nem avaliação médica presencial. A classificação apresentada é apenas inicial. <strong>Casos com sinais de gravidade exigem contato direto imediato com a MDV.</strong></span><span class="disc-close" onclick="closeDisclaimer()" title="Fechar">✕</span></div><div class="disclaimer-banner" id="offlineBanner" style="display:none;background:linear-gradient(135deg,rgba(230,126,34,.08),rgba(231,76,60,.05));border-bottom-color:rgba(230,126,34,.2)"><span class="disc-icon">📡</span><span><strong style="color:#c0621a">Modo offline.</strong> O formulário funciona normalmente. O envio pelo WhatsApp e o mapa requerem conexão com a internet.</span><span class="disc-close" onclick="document.getElementById('offlineBanner').style.display='none'" title="Fechar">✕</span></div>
+  <!-- FIX v5: indicador de conectividade -->
+  <div class="disclaimer-banner" id="offlineBanner" style="display:none;background:linear-gradient(135deg,rgba(230,126,34,.08),rgba(231,76,60,.05));border-bottom-color:rgba(230,126,34,.2)">
+    <span class="disc-icon">📡</span>
+    <span><strong style="color:#c0621a">Modo offline.</strong> O formulário funciona normalmente. O envio pelo WhatsApp e o mapa requerem conexão com a internet.</span>
+    <span class="disc-close" onclick="document.getElementById('offlineBanner').style.display='none'" title="Fechar">✕</span>
+  </div>
 
 <!-- ==================== HOME ==================== -->
-<div id="home" class="screen active" style="padding:0"><div class="hero">
+<div id="home" class="screen active" style="padding:0">
+  <div class="hero">
     <!-- Ultrassom SVG animado -->
     <div class="hero-illustration" aria-hidden="true">
       <svg viewBox="0 0 320 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
@@ -1548,7 +1620,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 </div>
 
 <!-- ==================== FORM ==================== -->
-<div id="form" class="screen" style="display:none">
+<div id="form" class="screen">
   <button class="btn-back" onclick="navTo('home')"><span class="mdi-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></span> Início</button>
 
   <div class="section-hdr">
@@ -2078,19 +2150,157 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   </div>
 
 
-  <!-- STEP 3C: ECOCARDIOGRAMA FETAL (Cardio flow) -->
+  <!-- STEP 3C: ECOCARDIOGRAMA FETAL — Diretriz Brasileira 2019 -->
+  <!-- Reformulado v2 (Mbula 2026-05): substitui motivo único por sistema -->
+  <!-- estruturado de Categoria → Indicação → Classe (I/IIa/IIb/III) → Nível (B/C) -->
   <div class="form-step" id="step3c" style="display:none">
+
+    <!-- Banner explicativo da diretriz -->
+    <div class="info-banner" style="background:linear-gradient(135deg,rgba(107,63,160,.08),rgba(232,67,122,.04));border:1.5px solid rgba(107,63,160,.18)">
+      <span class="mdi-icon" style="color:var(--purple);flex-shrink:0">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+      </span>
+      <span style="font-size:.78rem;line-height:1.5">
+        <strong style="color:var(--purple)">Diretriz Brasileira 2019</strong> — Indicações de Ecocardiograma Fetal classificadas por
+        <strong>Classe</strong> (I = recomendado · IIa = razoável · IIb = pode ser considerado · III = não indicado)
+        e <strong>Nível de Evidência</strong> (B = estudos não-aleatorizados · C = consenso de especialistas).
+      </span>
+    </div>
+
     <div class="fcard">
-      <div class="fcard-hdr"><span class="mdi-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z"/></svg></span><span class="title">Ecocardiograma Fetal</span><span class="badge-req">Obrigatório</span></div>
-      <div class="field"><label>Motivo principal do encaminhamento cardíaco <span class="req">*</span></label>
-        <select id="cMotivo"><option value="">Selecione...</option><option value="Translucência Nucal elevada (≥3,5 mm)">Translucência Nucal elevada (≥3,5 mm)</option><option value="Suspeita de cardiopatia no ultrassom morfológico">Suspeita de cardiopatia no ultrassom morfológico</option><option value="Arritmia fetal detectada">Arritmia fetal detectada</option><option value="Hidropsia fetal">Hidropsia fetal</option><option value="Histórico familiar de cardiopatia congênita">Histórico familiar de cardiopatia congênita</option><option value="Cardiopatia materna com risco de transmissão">Cardiopatia materna com risco de transmissão</option><option value="Diabetes materno — risco de cardiopatia congênita">Diabetes materno — risco de cardiopatia congênita</option><option value="Lúpus eritematoso sistêmico com anti-Ro/La positivo">Lúpus (LES) com anti-Ro/La positivo</option><option value="NIPT/Cariótipo com Trissomia 21, 18, 13 ou deleção 22q11.2">Teste genético (NIPT) / Cariótipo com Trissomia 21, 18, 13 ou deleção 22q11.2</option><option value="Outro">Outro</option></select>
+      <div class="fcard-hdr">
+        <span class="mdi-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z"/></svg></span>
+        <span class="title">Indicação para Ecocardiograma Fetal</span>
+        <span class="badge-req">Obrigatório</span>
       </div>
-      <div class="field"><label>Ecocardiograma fetal já realizado?</label>
-        <select id="cEcoFeito" onchange="toggleCEco()"><option value="Nao">Não realizado</option><option value="Sim-normal">Sim — resultado normal</option><option value="Sim-alterado">Sim — resultado alterado</option><option value="Sim-inconclusivo">Sim — inconclusivo</option></select>
+
+      <div class="field">
+        <label>Categoria da indicação <span class="req">*</span></label>
+        <select id="cIndicacaoCategoria" onchange="onCardioCategoriaChange()">
+          <option value="">Selecione a categoria...</option>
+          <option value="Fetal">🍼 Indicação Fetal (achado no feto)</option>
+          <option value="Materna">🤰 Indicação Materna (condição da gestante)</option>
+          <option value="Familiar">👪 Indicação Familiar (história familiar)</option>
+          <option value="Negativa">🚫 Avaliar — pode ser indicação NÃO formal (Classe III)</option>
+        </select>
+      </div>
+
+      <div class="field" id="cIndicacaoEspecificaWrap" style="display:none">
+        <label>Indicação específica <span class="req">*</span> <button class="tip-btn" onclick="event.stopPropagation();showTip('diretriz2019',this)" aria-label="Saiba mais">ⓘ</button></label>
+        <select id="cIndicacaoEspecifica" onchange="onCardioIndicacaoChange()">
+          <option value="">Selecione a indicação específica...</option>
+          <!-- Opções injetadas dinamicamente por onCardioCategoriaChange() -->
+        </select>
+      </div>
+
+      <!-- Classificação automática da diretriz (apenas exibição) -->
+      <div id="cClassificacaoDiretriz" style="display:none;margin-top:8px">
+        <div class="diretriz-card">
+          <div class="diretriz-row">
+            <span class="diretriz-lbl">Classe de Recomendação</span>
+            <span class="diretriz-val" id="cIndicacaoClasseDisplay">—</span>
+          </div>
+          <div class="diretriz-row">
+            <span class="diretriz-lbl">Nível de Evidência</span>
+            <span class="diretriz-val" id="cIndicacaoNivelDisplay">—</span>
+          </div>
+          <div class="diretriz-row" style="flex-direction:column;gap:4px;align-items:flex-start">
+            <span class="diretriz-lbl">Interpretação clínica</span>
+            <span id="cIndicacaoInterp" style="font-size:.78rem;color:var(--text-soft);line-height:1.5"></span>
+          </div>
+        </div>
+        <!-- Campos hidden para o payload -->
+        <input type="hidden" id="cIndicacaoClasse" value="">
+        <input type="hidden" id="cIndicacaoNivel" value="">
+      </div>
+
+      <!-- Detalhamento adicional quando indicação fetal é arritmia/malformação -->
+      <div class="field" id="cDetalheArritmiaWrap" style="display:none">
+        <label>Tipo de arritmia detectada</label>
+        <select id="cDetalheArritmia">
+          <option value="">Selecione...</option>
+          <option value="Taquicardia sustentada (>180 bpm)">Taquicardia sustentada (&gt;180 bpm)</option>
+          <option value="Bradicardia sustentada (<100 bpm)">Bradicardia sustentada (&lt;100 bpm)</option>
+          <option value="Extrassístoles frequentes">Extrassístoles frequentes</option>
+          <option value="Bloqueio atrioventricular">Bloqueio atrioventricular</option>
+          <option value="Outra">Outra (descrever no motivo)</option>
+        </select>
+      </div>
+
+      <div class="field" id="cDetalheMalformacaoWrap" style="display:none">
+        <label>Malformação extracardíaca identificada</label>
+        <input type="text" id="cDetalheMalformacao" placeholder="Ex: onfalocele, hérnia diafragmática, gastrosquise...">
+      </div>
+
+      <div class="field" id="cDetalheCariotipoWrap" style="display:none">
+        <label>Alteração cromossômica</label>
+        <select id="cDetalheCariotipo">
+          <option value="">Selecione...</option>
+          <option value="Trissomia 21 (Síndrome de Down)">Trissomia 21 (Síndrome de Down)</option>
+          <option value="Trissomia 18 (Síndrome de Edwards)">Trissomia 18 (Síndrome de Edwards)</option>
+          <option value="Trissomia 13 (Síndrome de Patau)">Trissomia 13 (Síndrome de Patau)</option>
+          <option value="Monossomia X (Síndrome de Turner)">Monossomia X (Síndrome de Turner)</option>
+          <option value="Deleção 22q11.2 (DiGeorge)">Deleção 22q11.2 (DiGeorge)</option>
+          <option value="Outra">Outra (descrever no motivo)</option>
+        </select>
+      </div>
+
+      <div class="field" id="cDetalheTeratogenoWrap" style="display:none">
+        <label>Teratógeno utilizado</label>
+        <select id="cDetalheTeratogeno">
+          <option value="">Selecione...</option>
+          <option value="Lítio">Lítio</option>
+          <option value="IECA (Inibidor da ECA)">IECA (Inibidor da ECA)</option>
+          <option value="Ácido retinoico">Ácido retinoico</option>
+          <option value="Anticonvulsivantes">Anticonvulsivantes (valproato, carbamazepina, fenitoína)</option>
+          <option value="Múltiplos">Múltiplos teratógenos</option>
+          <option value="Outro">Outro (descrever no motivo)</option>
+        </select>
+      </div>
+
+      <div class="field" id="cDetalheInfeccaoWrap" style="display:none">
+        <label>Infecção aguda materna</label>
+        <select id="cDetalheInfeccao">
+          <option value="">Selecione...</option>
+          <option value="Rubéola">Rubéola</option>
+          <option value="Citomegalovírus (CMV)">Citomegalovírus (CMV)</option>
+          <option value="Parvovírus B19">Parvovírus B19</option>
+          <option value="Toxoplasmose">Toxoplasmose</option>
+          <option value="Zika">Zika</option>
+          <option value="Outra">Outra</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Bloco do ecocardiograma fetal (já realizado ou não) -->
+    <div class="fcard">
+      <div class="fcard-hdr">
+        <span class="mdi-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z"/></svg></span>
+        <span class="title">Ecocardiograma Fetal já realizado?</span>
+      </div>
+      <div class="field">
+        <select id="cEcoFeito" onchange="toggleCEco()">
+          <option value="Nao">Não — solicitando avaliação</option>
+          <option value="Sim-normal">Sim — resultado normal</option>
+          <option value="Sim-alterado">Sim — resultado alterado</option>
+          <option value="Sim-inconclusivo">Sim — inconclusivo</option>
+        </select>
       </div>
       <div id="cEcoFields" style="display:none">
-        <div class="row-2"><div class="field"><label>Data do eco cardíaco</label><input type="date" id="cEcoData"></div><div class="field"><label>IG no eco <span class="hint">(sem)</span></label><input type="number" id="cEcoIG" placeholder="Ex: 26" min="12" max="42" inputmode="numeric"></div></div>
-        <div class="field"><label>Resultado geral</label><select id="cEcoResultado"><option value="">Selecione...</option><option value="Normal — quatro câmaras e vias de saída normais">Normal — 4 câmaras e vias de saída normais</option><option value="Alterado — defeito septal">Alterado — defeito septal (CIA/CIV)</option><option value="Alterado — via de saída">Alterado — via de saída</option><option value="Alterado — cardiopatia complexa">Alterado — cardiopatia complexa</option><option value="Inconclusivo">Inconclusivo</option></select></div>
+        <div class="row-2">
+          <div class="field"><label>Data do eco cardíaco</label><input type="date" id="cEcoData"></div>
+          <div class="field"><label>IG no eco <span class="hint">(sem)</span></label><input type="number" id="cEcoIG" placeholder="Ex: 26" min="12" max="42" inputmode="numeric"></div>
+        </div>
+        <div class="field"><label>Resultado geral</label>
+          <select id="cEcoResultado">
+            <option value="">Selecione...</option>
+            <option value="Normal — quatro câmaras e vias de saída normais">Normal — 4 câmaras e vias de saída normais</option>
+            <option value="Alterado — defeito septal">Alterado — defeito septal (CIA/CIV)</option>
+            <option value="Alterado — via de saída">Alterado — via de saída</option>
+            <option value="Alterado — cardiopatia complexa">Alterado — cardiopatia complexa</option>
+            <option value="Inconclusivo">Inconclusivo</option>
+          </select>
+        </div>
         <div class="field"><label>Achados <span class="hint">(marque todos)</span></label>
           <div class="check-group" id="cEcoAchados">
             <label class="check-item" onclick="toggleCheck(this,event)"><input type="checkbox" value="4 câmaras alteradas"><span class="dot"></span>Quatro câmaras</label>
@@ -2109,11 +2319,35 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
           </div>
         </div>
         <div class="field"><label>Hipótese diagnóstica</label>
-          <select id="cHipotese"><option value="">Selecione...</option><option value="CIV — Comunicação Interventricular">CIV — Comunicação Interventricular</option><option value="CIA — Comunicação Interatrial">CIA — Comunicação Interatrial</option><option value="DSAV — Defeito do Septo Atrioventricular">DSAV — Defeito do Septo Atrioventricular</option><option value="Tetralogia de Fallot">Tetralogia de Fallot</option><option value="TGA — Transposição das Grandes Artérias">TGA — Transposição das Grandes Artérias</option><option value="Coarctação da aorta">Coarctação da aorta</option><option value="SHVE — Síndrome de Hipoplasia do Ventrículo Esquerdo">SHVE — Síndrome de Hipoplasia do Ventrículo Esquerdo</option><option value="TAPVR — Retorno Venoso Pulmonar Anômalo Total">TAPVR — Retorno Venoso Pulmonar Anômalo Total</option><option value="Cardiopatia complexa não especificada">Cardiopatia complexa não especificada</option><option value="Outra">Outra (descrever abaixo)</option></select>
+          <select id="cHipotese">
+            <option value="">Selecione...</option>
+            <option value="CIV — Comunicação Interventricular">CIV — Comunicação Interventricular</option>
+            <option value="CIA — Comunicação Interatrial">CIA — Comunicação Interatrial</option>
+            <option value="DSAV — Defeito do Septo Atrioventricular">DSAV — Defeito do Septo Atrioventricular</option>
+            <option value="Tetralogia de Fallot">Tetralogia de Fallot</option>
+            <option value="TGA — Transposição das Grandes Artérias">TGA — Transposição das Grandes Artérias</option>
+            <option value="Coarctação da aorta">Coarctação da aorta</option>
+            <option value="SHVE — Síndrome de Hipoplasia do Ventrículo Esquerdo">SHVE — Síndrome de Hipoplasia do Ventrículo Esquerdo</option>
+            <option value="TAPVR — Retorno Venoso Pulmonar Anômalo Total">TAPVR — Retorno Venoso Pulmonar Anômalo Total</option>
+            <option value="Cardiopatia complexa não especificada">Cardiopatia complexa não especificada</option>
+            <option value="Outra">Outra (descrever abaixo)</option>
+          </select>
         </div>
         <div class="field"><label>Descrição dos achados</label><textarea id="cEcoDesc" placeholder="Descreva os achados ecocardiográficos..."></textarea></div>
       </div>
     </div>
+
+    <!-- Campo de motivo principal (livre, mantido para anamnese narrativa) -->
+    <div class="fcard">
+      <div class="fcard-hdr">
+        <span class="mdi-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 10h11v2H3zm0-4h11v2H3zm0 8h7v2H3z"/></svg></span>
+        <span class="title">Motivo do encaminhamento (texto livre)</span>
+      </div>
+      <div class="field">
+        <textarea id="cMotivo" placeholder="Descreva detalhes adicionais relevantes não capturados nos campos estruturados acima..." style="min-height:80px"></textarea>
+      </div>
+    </div>
+
     <div class="btn-row-mt">
       <button class="btn btn-outline" onclick="prevStepCardio(2)" style="flex:1">Voltar</button>
       <button class="btn btn-primary" onclick="nextStepCardio(4)" style="flex:2">Continuar <span class="mdi-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg></span></button>
@@ -2345,7 +2579,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 </div>
 
 <!-- ==================== CRITERIA ==================== -->
-<div id="criteria" class="screen" style="display:none">
+<div id="criteria" class="screen">
   <button class="btn-back" onclick="navTo('home')"><span class="mdi-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></span> Início</button>
   <div class="section-hdr"><h2>Critérios de Encaminhamento 📋</h2><p>Indicações clínicas para encaminhamento ao ambulatório de Medicina Fetal e Cardiologia Fetal da MDV.</p></div>
   <div class="fcard">
@@ -2363,7 +2597,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 </div>
 
 <!-- ==================== CONTACT ==================== -->
-<div id="contact" class="screen" style="display:none">
+<div id="contact" class="screen">
   <button class="btn-back" onclick="navTo('home')"><span class="mdi-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg></span> Início</button>
   <div class="section-hdr"><h2>Contato & Agendamento 📞</h2><p>Pré-Triagem Inteligente · Medicina Fetal & Cardiologia — MDV Joinville.</p></div>
   <a class="contact-item" href="https://wa.me/5547999273653?text=Olá!%20Gostaria%20de%20encaminhar%20uma%20paciente%20ao%20ambulatório%20de%20Medicina%20Fetal%20da%20MDV." target="_blank">
@@ -2449,7 +2683,13 @@ const CONFIG = {
   instName: 'MDV — Pré-Triagem Inteligente',
   // Cole aqui a URL gerada pelo Google Apps Script após implantar
   // Exemplo: 'https://script.google.com/macros/s/SEU_ID_AQUI/exec'
-  sheetsUrl: 'https://script.google.com/macros/s/AKfycbzI-YJfDOy6LkjOS-XBcS0W3IXwyCKu9uCDWJd5zNEWdpiRUmP25AbbDulPyI8_i4rL/exec'
+  sheetsUrl: '', // ⚠️ TODO Mbula: cole aqui a URL após criar a planilha do Sheets
+  // ── Versão da Diretriz utilizada para Cardiologia Fetal ──
+  diretrizCardioVersao: 'Diretriz Brasileira de Indicação de Ecocardiograma Fetal (2019)',
+  // ── Política LGPD ──
+  // Para envio ao GEM Gemini (consumer): anonimização agressiva obrigatória
+  // (sem TCLE específico, dados nunca devem permitir reidentificação)
+  anonimizacaoAgressiva: true
 };
 
 let urgencia = 'eletivo';        // Medicina Fetal
@@ -2457,18 +2697,124 @@ let urgenciaCardio = 'eletivo';  // Cardiologia Fetal
 let currentCaseID = null;
 let _lastSentCaseID = null;      // FIX E: rastrear último envio para feedback
 
-// ── Fechar disclaimer — remove do DOM para não deixar espaço residual
-function closeDisclaimer() {
-  ['disclaimerBanner','offlineBanner'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el && el.parentNode) el.parentNode.removeChild(el);
-  });
-  // Android mantém scroll position após remoção de elemento — forçar topo
-  window.scrollTo(0, 0);
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
-  var app = document.getElementById('app');
-  if (app) app.scrollTop = 0;
+// ════════════════════════════════════════════════════════════════
+//  UTILITÁRIOS DE SEGURANÇA E DEFESA — v2 (Mbula, 2026-05)
+// ════════════════════════════════════════════════════════════════
+
+// ── escapeHtml(): defesa contra XSS em interpolação innerHTML ──
+// Use SEMPRE que injetar valor de campo de usuário em template literal
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ── gEsc(id): atalho seguro = g(id) + escapeHtml() ──
+// Use no lugar de g(id) sempre que o valor for para innerHTML
+function gEsc(id) {
+  const v = (typeof g === 'function') ? g(id) : (() => {
+    const el = document.getElementById(id);
+    return el ? (el.value || '—') : '—';
+  })();
+  return escapeHtml(v);
+}
+
+// ── copyToClipboard(): copy robusto com fallback ──
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+    // Fallback para iframe inseguro / browsers antigos
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch (e) {
+    console.warn('Falha ao copiar:', e);
+    return false;
+  }
+}
+
+// ── ANONIMIZAÇÃO AGRESSIVA — para envio a LLM externo (Gemini consumer) ──
+// Premissa LGPD: sem TCLE específico, NENHUM dado pode permitir reidentificação
+// Estratégia: faixas, mesorregião (não cidade), datas relativas, sem registros
+const REGIOES_SC = {
+  // Mesorregião IBGE — agrupamento que evita identificação por cidade
+  'joinville': 'Norte Catarinense', 'jaragua do sul': 'Norte Catarinense',
+  'sao francisco do sul': 'Norte Catarinense', 'araquari': 'Norte Catarinense',
+  'guaramirim': 'Norte Catarinense', 'mafra': 'Norte Catarinense',
+  'florianopolis': 'Grande Florianópolis', 'sao jose': 'Grande Florianópolis',
+  'palhoca': 'Grande Florianópolis', 'biguacu': 'Grande Florianópolis',
+  'blumenau': 'Vale do Itajaí', 'itajai': 'Vale do Itajaí',
+  'balneario camboriu': 'Vale do Itajaí', 'brusque': 'Vale do Itajaí',
+  'rio do sul': 'Vale do Itajaí', 'gaspar': 'Vale do Itajaí',
+  'criciuma': 'Sul Catarinense', 'tubarao': 'Sul Catarinense',
+  'lages': 'Serrana', 'sao joaquim': 'Serrana',
+  'chapeco': 'Oeste Catarinense', 'concordia': 'Oeste Catarinense',
+  'sao miguel do oeste': 'Oeste Catarinense'
+};
+
+function normalizarTexto(s) {
+  if (!s) return '';
+  return s.toString().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
+
+function anonRegiao(cidade) {
+  if (!cidade || cidade === '—') return 'Região não informada';
+  const k = normalizarTexto(cidade);
+  return REGIOES_SC[k] || 'Outra região de SC';
+}
+
+function anonFaixaEtaria(idade) {
+  const n = parseInt(idade, 10);
+  if (isNaN(n)) return 'idade não informada';
+  if (n < 18) return 'adolescente (<18 anos)';
+  if (n <= 24) return 'jovem (18–24)';
+  if (n <= 34) return 'adulta (25–34)';
+  if (n <= 39) return 'idade materna avançada (35–39)';
+  return 'idade materna muito avançada (≥40)';
+}
+
+function anonIG(igSem) {
+  const n = parseInt(igSem, 10);
+  if (isNaN(n)) return 'IG não informada';
+  if (n < 14) return '1º trimestre';
+  if (n < 24) return '2º trimestre precoce (14–23 sem)';
+  if (n < 28) return '2º trimestre tardio (24–27 sem)';
+  if (n < 34) return '3º trimestre precoce (28–33 sem)';
+  if (n < 37) return 'pré-termo tardio (34–36 sem)';
+  if (n < 42) return 'termo (37–41 sem)';
+  return 'pós-termo';
+}
+
+function dataRelativa(dataISO) {
+  if (!dataISO || dataISO === '—') return 'data não informada';
+  try {
+    const d = new Date(dataISO);
+    if (isNaN(d)) return 'data não informada';
+    const diff = Math.floor((Date.now() - d.getTime()) / 86400000);
+    if (diff < 0) return 'em ' + Math.abs(diff) + ' dias';
+    if (diff === 0) return 'hoje';
+    if (diff < 7) return 'há ' + diff + ' dias';
+    if (diff < 30) return 'há ' + Math.floor(diff/7) + ' semanas';
+    if (diff < 365) return 'há ' + Math.floor(diff/30) + ' meses';
+    return 'há ' + Math.floor(diff/365) + ' anos';
+  } catch (e) {
+    return 'data não informada';
+  }
 }
 
 // ── navToForm(): ponto único de entrada no formulário pelo nav/menu
@@ -2519,7 +2865,6 @@ function navTo(id) {
   t.style.display = 'block';
   void t.offsetWidth;
   t.classList.add('active');
-  _currentScreenId = id;
   // Update both bottom nav and sidebar
   document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.dataset.screen === id));
   document.querySelectorAll('.sidebar-nav-item').forEach(i => i.classList.toggle('active', i.dataset.screen === id));
@@ -2535,67 +2880,7 @@ function navTo(id) {
     const s0 = document.getElementById('step0');
     if (s0) s0.style.display = 'block';
   }
-  // Empurrar estado no histórico para interceptar botão voltar do Android
-  _pushNav(id, id === 'form' ? currentStep : null);
 }
-
-// ── Android Back Button — History API ────────────────────────
-// Cada navTo e cada avanço de step empurra um estado no histórico.
-// O botão físico "voltar" dispara popstate e nós navegamos internamente.
-
-let _currentScreenId = 'home';
-let _historyReady = false;
-let _historySupported = false; // detectado na inicialização
-
-function _pushNav(screenId, step) {
-  if (!_historyReady || !_historySupported) return;
-  try {
-    const state = { screen: screenId, step: step || null };
-    history.pushState(state, '', '#' + screenId + (step ? '-s' + step : ''));
-  } catch(e) { _historySupported = false; }
-}
-
-window.addEventListener('popstate', function(e) {
-  if (!_historySupported) return;
-  const state = e.state;
-
-  if (!state || state.base) {
-    try { history.pushState({ screen: 'home', step: null }, '', '#home'); } catch(e) {}
-    if (_currentScreenId !== 'home') {
-      _historyReady = false;
-      navTo('home');
-      _historyReady = true;
-    }
-    return;
-  }
-
-  const targetScreen = state.screen || 'home';
-  const targetStep   = state.step;
-  _historyReady = false;
-
-  if (targetScreen === 'form' && targetStep !== null && _currentScreenId === 'form') {
-    if (typeof animStep === 'function' && currentStep !== targetStep) {
-      animStep(currentStep, targetStep);
-    }
-  } else if (targetScreen !== _currentScreenId) {
-    navTo(targetScreen);
-  }
-
-  _historyReady = true;
-});
-
-// Inicializar histórico após DOMContentLoaded
-document.addEventListener('DOMContentLoaded', function() {
-  try {
-    history.replaceState({ screen: 'home', step: null, base: true }, '', '#home');
-    history.pushState({ screen: 'home', step: null }, '', '#home');
-    _historySupported = true;
-    _historyReady = true;
-  } catch(e) {
-    // Contexto sem permissão (iframe cross-origin, etc) — botão voltar não interceptado
-    _historySupported = false;
-  }
-});
 
 // Step navigation
 let currentStep = 1;
@@ -2641,8 +2926,6 @@ function animStep(from, to) {
   currentStep = to;
   updateProgress();
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  // Empurrar step no histórico para interceptar botão voltar do Android
-  _pushNav('form', to);
 }
 
 // updateProgress() definida abaixo como updateProgressMulti (versão única e completa)
@@ -2858,15 +3141,25 @@ function showResult() {
 
   const decl = document.getElementById('declaracaoRevisao');
   if (!decl || !decl.checked) {
-    showToast('⚠️ Confirme a revisão das informações antes de prosseguir');
-    decl && decl.closest('.check-item') && (decl.closest('.check-item').style.animation = 'none') && void decl.closest('.check-item').offsetWidth && (decl.closest('.check-item').style.animation = 'check-bounce .4s');
+    showToast('⚠️ Marque a declaração de revisão no final do formulário', { type: 'warn', duration: 3500 });
+    if (decl) {
+      const item = decl.closest('.check-item');
+      if (item) {
+        safeScrollIntoView(item);
+        item.classList.add('field-pulse');
+        setTimeout(() => item.classList.remove('field-pulse'), 5200);
+      }
+    }
     return;
   }
 
   const motivoEl = document.getElementById('motivoEnc');
   if (!motivoEl.value.trim()) {
-    motivoEl.classList.add('invalid');
-    showToast('⚠️ Informe o motivo do encaminhamento');
+    motivoEl.classList.add('invalid', 'field-pulse');
+    safeScrollIntoView(motivoEl);
+    setTimeout(() => { try { motivoEl.focus({ preventScroll: true }); } catch(e) { motivoEl.focus(); } }, 500);
+    setTimeout(() => motivoEl.classList.remove('field-pulse'), 5200);
+    showToast('⚠️ Informe o motivo do encaminhamento (campo destacado)', { type: 'warn', duration: 3500 });
     return;
   }
   motivoEl.classList.remove('invalid');
@@ -3011,11 +3304,31 @@ function showResult() {
     ${g('obsAdic')&&g('obsAdic')!=='—'?rowBlock('Observações adicionais',g('obsAdic')):''}
   </div>
 
-  <div id="urgencyAlertContainer"></div>
+  <div id="urgencyAlertContainerFetal" class="urgency-alert-container" role="alert" aria-live="assertive"></div>
   <div class="result-actions">
     <button class="btn btn-whatsapp" onclick="enviarWhatsApp()"><span class="mdi-icon">${svgSend}</span> Enviar pelo WhatsApp</button>
     <p style="text-align:center;font-size:.76rem;color:var(--text-muted);margin-top:8px;line-height:1.45">O WhatsApp será aberto com os dados da <strong>pré-triagem</strong> já formatados.<br>Lembre-se de <strong>anexar os documentos</strong> marcados acima.<br><strong>Casos graves não devem aguardar resposta do formulário.</strong></p>
-    <button class="btn-print" onclick="mdvPrint()"><svg viewBox="0 0 24 24" fill="currentColor" style="width:17px;height:17px"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg> Imprimir / Salvar PDF</button>
+
+    <!-- v2: Outputs adicionais (Prontuário + Gemini) -->
+    <div style="margin-top:14px;padding:14px 16px;background:linear-gradient(135deg,rgba(107,63,160,.06),rgba(232,67,122,.04));border:1.5px solid rgba(107,63,160,.18);border-radius:var(--r-md)">
+      <div style="font-size:.78rem;font-weight:800;color:var(--purple);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <span>✨</span><span>Outros formatos do resumo</span>
+      </div>
+      <button class="btn-print" onclick="copyProntuarioMD('fetal')" style="margin-bottom:8px;background:#fff;color:var(--purple);border:1.5px solid var(--purple)">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:17px;height:17px"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        📋 Copiar resumo para Prontuário (Markdown)
+      </button>
+      <button class="btn-print" onclick="copyGEMPrompt('fetal')" style="background:linear-gradient(135deg,#1A73E8,#4285F4);color:#fff;border:none">
+        <svg viewBox="0 0 24 24" fill="currentColor" style="width:17px;height:17px"><path d="M12 2L9.91 8.84 3 11l6.91 2.16L12 20l2.09-6.84L21 11l-6.91-2.16z"/></svg>
+        ✨ Copiar para análise IA (Gemini · anonimizado)
+      </button>
+      <p style="font-size:.7rem;color:var(--text-muted);margin-top:8px;line-height:1.45">
+        <strong>📋 Prontuário:</strong> resumo limpo em Markdown, dados completos para colar no prontuário institucional.<br>
+        <strong>✨ Gemini:</strong> JSON com <strong>anonimização agressiva</strong> (sem nome/cidade/datas) + prompt clínico estruturado para análise por IA externa.
+      </p>
+    </div>
+
+    <button class="btn-print" onclick="mdvPrint()" style="margin-top:10px"><svg viewBox="0 0 24 24" fill="currentColor" style="width:17px;height:17px"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg> Imprimir / Salvar PDF</button>
       <button class="btn btn-outline" onclick="resetForm()"><span class="mdi-icon">${svgReset}</span> Nova Pré-Triagem Inteligente</button>
     
       <div style="margin-top:16px;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--border-soft)">
@@ -3132,11 +3445,55 @@ function resetForm() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function showToast(msg) {
+// v3: showToast com detecção de tipo, ícone em pop animado e duração ajustada por contexto
+// v5: Wrapper defensivo para scrollIntoView — ambientes sem suporte (jsdom em testes,
+// browsers muito antigos) não devem quebrar o fluxo. Fallback usa window.scrollTo.
+function safeScrollIntoView(el, opts) {
+  if (!el) return;
+  try {
+    if (typeof el.scrollIntoView === 'function') {
+      el.scrollIntoView(opts || { behavior: 'smooth', block: 'center' });
+      return;
+    }
+  } catch(e) {}
+  // Fallback: calcula posição absoluta
+  try {
+    const rect = el.getBoundingClientRect();
+    const absTop = window.pageYOffset + rect.top - 120;
+    window.scrollTo({ top: Math.max(0, absTop), behavior: 'smooth' });
+  } catch(e) {}
+}
+
+function showToast(msg, opts) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  if (!t) return;
+  opts = opts || {};
+  // Auto-detecção de variante pelo conteúdo da mensagem (compatível com chamadas legadas)
+  let type = opts.type || 'info';
+  if (!opts.type) {
+    if (/⚠️|alert|inválid|obrigatóri|campos|preencha/i.test(msg)) type = 'warn';
+    else if (/❌|erro|falha/i.test(msg)) type = 'error';
+    else if (/✅|✓|✨|📋|📥|🗑️|copiado|sucesso|configurado|atualizado|limpos|exportad/i.test(msg)) type = 'success';
+  }
+  // Extrai emoji-ícone do início da mensagem (se houver) para destacá-lo
+  const m = String(msg).match(/^([\p{Emoji_Presentation}\p{Extended_Pictographic}✅✓✨❌⚠️📋📥🗑️🔴🟠🟡🟢ℹ️]+)\s*(.*)$/u);
+  let icon = '', text = msg;
+  if (m) { icon = m[1]; text = m[2] || msg; }
+  // Fallback de ícone por tipo
+  if (!icon) {
+    icon = type === 'success' ? '✓' : type === 'warn' ? '⚠️' : type === 'error' ? '❌' : 'ℹ️';
+  }
+  // Reset de classes e estado
+  t.className = 'toast';
+  t.classList.add('toast-' + type);
+  t.innerHTML = '<span class="toast-icon">' + icon + '</span><span class="toast-text">' + String(text).replace(/[<>&]/g, c=>({ '<':'&lt;','>':'&gt;','&':'&amp;' }[c])) + '</span>';
+  // Restart da animação caso já esteja visível
+  void t.offsetWidth;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2600);
+  // Cancela timer anterior, se houver
+  if (t._toastTimer) clearTimeout(t._toastTimer);
+  const duration = opts.duration || (type === 'success' ? 2400 : 3000);
+  t._toastTimer = setTimeout(() => t.classList.remove('show'), duration);
 }
 
 
@@ -3208,7 +3565,7 @@ function mdvPrint() {
 // Fix input scroll-into-view on iOS keyboard open
 document.querySelectorAll('input,select,textarea').forEach(el=>{
   el.addEventListener('focus',function(){
-    setTimeout(()=>this.scrollIntoView({behavior:'smooth',block:'center'}),350);
+    setTimeout(()=>safeScrollIntoView(this),350);
   },{passive:true});
 });
 
@@ -3601,6 +3958,20 @@ function animStepCardio(from,to){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function nextStepCardio(to){
+  // v4: Validação preventiva — falhar cedo é melhor UX que chegar ao step 5 e travar
+  // Ao SAIR do step 3 (Diretriz 2019) para o 4, exigir Categoria + Indicação preenchidas
+  if(currentStepCardio===3 && to===4){
+    const cIndCat = document.getElementById('cIndicacaoCategoria');
+    const cIndEsp = document.getElementById('cIndicacaoEspecifica');
+    if(!cIndCat || !cIndCat.value){
+      jumpToFieldCardio(3, 'cIndicacaoCategoria', '⚠️ Selecione a Categoria da indicação antes de avançar');
+      return;
+    }
+    if(!cIndEsp || !cIndEsp.value){
+      jumpToFieldCardio(3, 'cIndicacaoEspecifica', '⚠️ Selecione a Indicação específica antes de avançar');
+      return;
+    }
+  }
   if(to===4){const m=document.getElementById('cMotivo');if(!m||!m.value){m&&m.classList.add('invalid');showToast('⚠️ Selecione o motivo do encaminhamento');return;}m.classList.remove('invalid');}
   animStepCardio(currentStepCardio,to);
 }
@@ -3609,37 +3980,246 @@ function toggleCEco(){document.getElementById('cEcoFields').style.display=docume
 function toggleCNipt(){document.getElementById('cNiptRes').style.display=(['Normal','Alterado'].includes(document.getElementById('cNipt').value))?'block':'none';}
 function toggleCCario(){document.getElementById('cCarioRes').style.display=document.getElementById('cCario').value!=='Nao'?'block':'none';}
 
+// ── v4: Navegação acionável para campo inválido (cardio) ──
+// Resolve UX: usuário trava no step 5 sem saber qual campo do step 3 está vazio.
+// Esta função: (1) navega ao step correto, (2) destaca campo com pulse, (3) foca,
+// (4) mostra balão "olhe aqui", (5) toast com mensagem acionável.
+function jumpToFieldCardio(targetStep, fieldId, toastMsg) {
+  const field = document.getElementById(fieldId);
+  if (!field) {
+    showToast(toastMsg, { type: 'warn' });
+    return;
+  }
+
+  // Mensagem acionável — informa step destino
+  const stepLabels = { 1: 'Gestante', 2: 'Obstetrícia', 3: 'Ecocardiograma', 4: 'Sinais e contexto', 5: 'Finalização' };
+  const stepName = stepLabels[targetStep] || ('passo ' + targetStep);
+  const fullMsg = toastMsg + ' (passo ' + targetStep + ' — ' + stepName + ')';
+  showToast(fullMsg, { type: 'warn', duration: 3800 });
+
+  // Se já estiver no step certo, só destaca; senão navega
+  const navigatePromise = (currentStepCardio !== targetStep)
+    ? new Promise(res => { animStepCardio(currentStepCardio, targetStep); setTimeout(res, 320); })
+    : Promise.resolve();
+
+  navigatePromise.then(() => {
+    // Garante que wrapper escondido (caso de cIndicacaoEspecificaWrap) esteja visível
+    const wrap = field.closest('.field');
+    if (wrap && wrap.style.display === 'none') wrap.style.display = 'block';
+
+    // Scroll suave até o campo, com folga superior
+    const rect = field.getBoundingClientRect();
+    const absTop = window.pageYOffset + rect.top - 120;
+    window.scrollTo({ top: Math.max(0, absTop), behavior: 'smooth' });
+
+    // Aplica destaque pulsante (3 ciclos = 4.8s)
+    field.classList.add('field-pulse', 'invalid');
+
+    // Balão flutuante "olhe aqui"
+    if (wrap && !wrap.querySelector('.field-jump-arrow')) {
+      const arrow = document.createElement('div');
+      arrow.className = 'field-jump-arrow';
+      arrow.textContent = '👇 Preencha aqui';
+      wrap.style.position = wrap.style.position || 'relative';
+      wrap.appendChild(arrow);
+      setTimeout(() => arrow.remove(), 5500);
+    }
+
+    // Foca o campo após scroll concluir
+    setTimeout(() => {
+      try { field.focus({ preventScroll: true }); } catch(e) { field.focus(); }
+    }, 600);
+
+    // Remove pulse depois da animação, mantém .invalid até o usuário corrigir
+    setTimeout(() => field.classList.remove('field-pulse'), 5200);
+  });
+}
+
+// Limpa marcação de inválido quando o usuário começa a corrigir
+function setupInvalidAutoCleanup() {
+  ['cIndicacaoCategoria','cIndicacaoEspecifica','cMotivoPrincipal','cMotivo','motivoEnc'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el._cleanupBound) {
+      el._cleanupBound = true;
+      const clean = () => {
+        if (el.value && el.value.trim()) {
+          el.classList.remove('invalid','field-pulse');
+          el.removeAttribute('aria-invalid'); // v5: sync ARIA
+        }
+      };
+      el.addEventListener('change', clean);
+      el.addEventListener('input', clean);
+    }
+  });
+}
+
+// v5: Setup de acessibilidade — atribuição automática de for=, aria-required, aria-invalid
+// Resolve falhas WCAG 1.3.1 (associação programática label↔input) e 4.1.3 (notificações)
+function setupAccessibility() {
+  // 1. Para cada <label> sem `for`, encontrar o input/select/textarea seguinte no mesmo .field
+  document.querySelectorAll('.field > label, .check-item > label').forEach(lbl => {
+    if (lbl.hasAttribute('for')) return;
+    const wrap = lbl.parentElement;
+    if (!wrap) return;
+    // Procura input/select/textarea descendente
+    const inp = wrap.querySelector('input, select, textarea');
+    if (!inp) return;
+    // Garante ID
+    if (!inp.id) {
+      inp.id = 'auto-' + Math.random().toString(36).slice(2,9);
+    }
+    lbl.setAttribute('for', inp.id);
+  });
+
+  // 2. Marcar campos obrigatórios — labels com <span class="req"> indicam *
+  document.querySelectorAll('label .req').forEach(reqMark => {
+    const lbl = reqMark.closest('label');
+    if (!lbl) return;
+    const targetId = lbl.getAttribute('for');
+    if (!targetId) return;
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.setAttribute('aria-required', 'true');
+      // Também adiciona texto invisível para leitor de tela
+      if (!reqMark.querySelector('.sr-only')) {
+        const sr = document.createElement('span');
+        sr.className = 'sr-only';
+        sr.textContent = ' (obrigatório)';
+        sr.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)';
+        reqMark.appendChild(sr);
+      }
+    }
+  });
+
+  // 3. Sincronizar aria-invalid quando .invalid for adicionado/removido
+  // Usa MutationObserver leve apenas em campos de formulário
+  if (typeof MutationObserver !== 'undefined') {
+    const obs = new MutationObserver(muts => {
+      muts.forEach(m => {
+        if (m.attributeName === 'class') {
+          const t = m.target;
+          if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) {
+            if (t.classList.contains('invalid')) t.setAttribute('aria-invalid', 'true');
+            else t.removeAttribute('aria-invalid');
+          }
+        }
+      });
+    });
+    document.querySelectorAll('#form input, #form select, #form textarea').forEach(el => {
+      obs.observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+
+  // 4. role=alert nos banners de urgência (anuncia ao surgir)
+  document.querySelectorAll('.urgency-alert-container').forEach(c => {
+    c.setAttribute('role', 'alert');
+    c.setAttribute('aria-live', 'assertive');
+  });
+
+  // 5. role=dialog em overlays (sentConfirmation, sendingOverlay, copyModal)
+  ['sentConfirmation','sendingOverlay'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.setAttribute('role', 'dialog');
+      el.setAttribute('aria-modal', 'true');
+    }
+  });
+
+  // 6. role=progressbar na barra de progresso
+  document.querySelectorAll('.progress-row').forEach(p => {
+    p.setAttribute('role', 'progressbar');
+    p.setAttribute('aria-label', 'Progresso do formulário');
+  });
+}
+
+// Inicializa após DOM pronto
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { setupInvalidAutoCleanup(); setupAccessibility(); });
+} else {
+  setupInvalidAutoCleanup();
+  setupAccessibility();
+}
+
 function showResultCardio(){
   currentCaseID = generateCaseID('cardio');
 
   const decl = document.getElementById('declaracaoRevisaoC');
   if (!decl || !decl.checked) {
-    showToast('⚠️ Confirme a revisão das informações antes de prosseguir');
-    decl && decl.closest('.check-item') && (decl.closest('.check-item').style.animation = 'none') && void decl.closest('.check-item').offsetWidth && (decl.closest('.check-item').style.animation = 'check-bounce .4s');
+    showToast('⚠️ Marque a declaração de revisão no final do formulário', { type: 'warn', duration: 3500 });
+    if (decl) {
+      const item = decl.closest('.check-item');
+      if (item) {
+        safeScrollIntoView(item);
+        item.classList.add('field-pulse');
+        setTimeout(() => item.classList.remove('field-pulse'), 5200);
+      }
+    }
     return;
   }
 
+  // v2/v4: validar indicação (Diretriz 2019) — agora com navegação acionável
+  const cIndCat = document.getElementById('cIndicacaoCategoria');
+  const cIndEsp = document.getElementById('cIndicacaoEspecifica');
+  if (!cIndCat || !cIndCat.value) {
+    jumpToFieldCardio(3, 'cIndicacaoCategoria', '⚠️ Selecione a Categoria da indicação — Diretriz 2019');
+    return;
+  }
+  cIndCat.classList.remove('invalid');
+  if (!cIndEsp || !cIndEsp.value) {
+    jumpToFieldCardio(3, 'cIndicacaoEspecifica', '⚠️ Selecione a Indicação específica do ecocardiograma — Diretriz 2019');
+    return;
+  }
+  cIndEsp.classList.remove('invalid');
+
   const mp=document.getElementById('cMotivoPrincipal');
-  if(!mp||!mp.value.trim()){mp&&mp.classList.add('invalid');showToast('⚠️ Informe o motivo do encaminhamento');return;}
+  if(!mp||!mp.value.trim()){
+    jumpToFieldCardio(5, 'cMotivoPrincipal', '⚠️ Informe o motivo do encaminhamento');
+    return;
+  }
   mp.classList.remove('invalid');
+
   const gc=id=>{const el=document.getElementById(id);return el?el.value||'—':'—';};
-  const getChk=gid=>{const its=document.querySelectorAll('#'+gid+' .check-item.checked input');return its.length?Array.from(its).map(i=>i.value).join(', '):'Nenhum';};
-  const getDcs=()=>{const its=document.querySelectorAll('#cDocList .doc-item.checked .doc-lbl');return its.length?Array.from(its).map(i=>i.textContent).join(', '):'Nenhum selecionado';};
+  const gcE=id=>escapeHtml(gc(id)); // v2: versão escapada
+  const getChk=gid=>{const its=document.querySelectorAll('#'+gid+' .check-item.checked input');return its.length?Array.from(its).map(i=>escapeHtml(i.value)).join(', '):'Nenhum';};
+  const getDcs=()=>{const its=document.querySelectorAll('#cDocList .doc-item.checked .doc-lbl');return its.length?Array.from(its).map(i=>escapeHtml(i.textContent)).join(', '):'Nenhum selecionado';};
   const row=(lbl,val,cls='')=>val&&val!=='—'?`<div class="preview-row"><span class="pr-lbl">${lbl}</span><span class="pr-val ${cls}">${val}</span></div>`:'';
   const rowB=(lbl,val)=>val&&val!=='—'?`<div class="preview-row" style="flex-direction:column;gap:4px"><span class="pr-lbl">${lbl}</span><div class="preview-block">${val}</div></div>`:'';
-  const chips=gid=>{const its=document.querySelectorAll('#'+gid+' .check-item.checked input');return its.length?`<div class="preview-chips">${Array.from(its).map(i=>`<span class="preview-chip">${i.value}</span>`).join('')}</div>`:'<span class="pr-val empty">Nenhum</span>';};
+  const chips=gid=>{const its=document.querySelectorAll('#'+gid+' .check-item.checked input');return its.length?`<div class="preview-chips">${Array.from(its).map(i=>`<span class="preview-chip">${escapeHtml(i.value)}</span>`).join('')}</div>`:'<span class="pr-val empty">Nenhum</span>';};
   const urgBCls=urgenciaCardio==='eletivo'?'urg-banner-eletivo':urgenciaCardio==='prioritario'?'urg-banner-prioritario':'urg-banner-urgente';
   const urgTxt=urgenciaCardio==='eletivo'?'🟢 Eletivo':urgenciaCardio==='prioritario'?'🟡 Prioridade clínica':'🔴 Contato imediato com a MDV';
   const now=new Date();const dataEnv=now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   const svgSend=`<svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>`;
   const svgReset=`<svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>`;
+
+  // v2: Bloco da Diretriz 2019
+  const cat = gc('cIndicacaoCategoria');
+  const idx = gc('cIndicacaoEspecifica');
+  const opt = (DIRETRIZ_CARDIO_2019[cat] || []).find(o => o.idx === idx);
+  let diretrizBlock = '';
+  if (opt) {
+    const detalhe = gc('cDetalheArritmia') !== '—' ? gc('cDetalheArritmia')
+                  : gc('cDetalheMalformacao') !== '—' ? gc('cDetalheMalformacao')
+                  : gc('cDetalheCariotipo') !== '—' ? gc('cDetalheCariotipo')
+                  : gc('cDetalheTeratogeno') !== '—' ? gc('cDetalheTeratogeno')
+                  : gc('cDetalheInfeccao') !== '—' ? gc('cDetalheInfeccao') : '';
+    diretrizBlock = `
+    <div class="preview-section">
+      <div class="preview-section-hdr"><h3>📋 Indicação — Diretriz Brasileira 2019</h3></div>
+      ${row('Categoria', escapeHtml(cat), 'highlight')}
+      ${row('Indicação', escapeHtml(opt.label))}
+      ${row('Classe / Nível', `Classe ${opt.classe} · Nível ${opt.nivel}`, 'highlight')}
+      ${row('Interpretação', escapeHtml(DIRETRIZ_INTERPRETACAO[opt.classe]))}
+      ${detalhe ? row('Detalhe adicional', escapeHtml(detalhe)) : ''}
+    </div>`;
+  }
+
   const ecoFeitoVal=gc('cEcoFeito');
   let ecoBlock=ecoFeitoVal!=='Nao'
-    ?`${row('Realizado',ecoFeitoVal)}${row('Data/IG',gc('cEcoData')+(gc('cEcoIG')!=='—'?' — '+gc('cEcoIG')+' sem':''))}${row('Resultado',gc('cEcoResultado'),gc('cEcoResultado').includes('Alterado')?'alert':'')}<div class="preview-row" style="flex-direction:column;gap:6px"><span class="pr-lbl">Achados</span>${chips('cEcoAchados')}</div>${row('Hipótese',gc('cHipotese'))}${rowB('Descrição',gc('cEcoDesc'))}`
+    ?`${row('Realizado', escapeHtml(ecoFeitoVal))}${row('Data/IG', escapeHtml(gc('cEcoData')+(gc('cEcoIG')!=='—'?' — '+gc('cEcoIG')+' sem':'')))}${row('Resultado', escapeHtml(gc('cEcoResultado')), gc('cEcoResultado').includes('Alterado')?'alert':'')}<div class="preview-row" style="flex-direction:column;gap:6px"><span class="pr-lbl">Achados</span>${chips('cEcoAchados')}</div>${row('Hipótese', escapeHtml(gc('cHipotese')))}${rowB('Descrição', escapeHtml(gc('cEcoDesc')))}`
     :'<div class="preview-row"><span class="pr-lbl">Ecocardiograma</span><span class="pr-val">Não realizado — encaminhamento para realização</span></div>';
   const nipt=gc('cNipt'),cario=gc('cCario');
   const genBlock=(nipt!=='Nao'||cario!=='Nao')
-    ?`<div class="preview-section"><div class="preview-section-hdr"><h3>🧬 Genética</h3></div>${row('NIPT',nipt+(gc('cNiptVal')!=='—'?' → '+gc('cNiptVal'):''))}${row('Cariótipo',cario+(gc('cCarioVal')!=='—'?' → '+gc('cCarioVal'):''))}</div>`:'';
+    ?`<div class="preview-section"><div class="preview-section-hdr"><h3>🧬 Genética</h3></div>${row('NIPT', escapeHtml(nipt+(gc('cNiptVal')!=='—'?' → '+gc('cNiptVal'):'')))}${row('Cariótipo', escapeHtml(cario+(gc('cCarioVal')!=='—'?' → '+gc('cCarioVal'):'')))}</div>`:'';
   document.getElementById('step5c').style.display='none';
   const res=document.getElementById('stepResult');
   res.style.display='block';
@@ -3649,19 +4229,47 @@ function showResultCardio(){
       <p class="result-subtitle">Maternidade Darcy Vargas — Pré-visualização do Encaminhamento</p>
     </div>
     <div class="${urgBCls} urg-banner">${urgTxt}</div>
-    <div class="preview-section"><div class="preview-section-hdr"><h3>👨‍⚕️ Profissional Solicitante</h3></div>${row('Nome',g('medNome'),'highlight')}${row('Categoria',g('medCategoria'))}${row('Registro',g('medCRM')+'-'+g('medEstado'))}${row('Especialidade',g('medEsp'))}${row('Serviço',g('medServico'))}${row('Telefone',g('medTel'))}</div>
-    <div class="preview-section"><div class="preview-section-hdr"><h3>🤰 Gestante</h3></div>${row('Nome',g('gestNome'),'highlight')}${row('Idade',g('gestIdade')!=='—'?g('gestIdade')+' anos':'')}${row('Cidade',g('gestCidade'))}${row('Telefone',g('gestTel'))}</div>
-    <div class="preview-section"><div class="preview-section-hdr"><h3>📅 Dados Obstétricos</h3></div>${row('IG',g('igSem')+'sem'+(g('igDias')&&g('igDias')!=='—'?' '+g('igDias')+'d':''),'highlight')}${row('DUM/DPP',g('gestDUM')+' / '+g('gestDPP'))}${row('G/P/A','G'+g('obsG')+' P'+g('obsP')+' A'+g('obsA'))}${row('Gestação',g('gestTipo'))}<div class="preview-row" style="flex-direction:column;gap:6px"><span class="pr-lbl">Comorbidades</span>${chips('comorb')}</div></div>
+    <div class="preview-section"><div class="preview-section-hdr"><h3>👨‍⚕️ Profissional Solicitante</h3></div>${row('Nome', gcE('medNome'),'highlight')}${row('Categoria', gcE('medCategoria'))}${row('Registro', gcE('medCRM')+'-'+gcE('medEstado'))}${row('Especialidade', gcE('medEsp'))}${row('Serviço', gcE('medServico'))}${row('Telefone', gcE('medTel'))}</div>
+    <div class="preview-section"><div class="preview-section-hdr"><h3>🤰 Gestante</h3></div>${row('Nome', gcE('gestNome'),'highlight')}${row('Idade', gc('gestIdade')!=='—'?escapeHtml(gc('gestIdade'))+' anos':'')}${row('Cidade', gcE('gestCidade'))}${row('Telefone', gcE('gestTel'))}</div>
+    <div class="preview-section"><div class="preview-section-hdr"><h3>📅 Dados Obstétricos</h3></div>${row('IG', escapeHtml(gc('igSem')+'sem'+(gc('igDias')&&gc('igDias')!=='—'?' '+gc('igDias')+'d':'')),'highlight')}${row('DUM/DPP', escapeHtml(gc('gestDUM')+' / '+gc('gestDPP')))}${row('G/P/A','G'+gcE('obsG')+' P'+gcE('obsP')+' A'+gcE('obsA'))}${row('Gestação', gcE('gestTipo'))}<div class="preview-row" style="flex-direction:column;gap:6px"><span class="pr-lbl">Comorbidades</span>${chips('comorb')}</div></div>
+    ${diretrizBlock}
+    <div class="preview-section"><div class="preview-section-hdr"><h3>❤️ Ecocardiograma Fetal</h3></div>${ecoBlock}</div>
+    <div class="preview-section"><div class="preview-section-hdr"><h3>🩺 Ritmo e Doppler</h3></div>${row('Ritmo', gcE('cRitmo'), gc('cRitmo').includes('BAV')||gc('cRitmo').includes('Bradicardia')||gc('cRitmo').includes('Taquicardia')?'alert':'')}${row('FC', gc('cFC')!=='—'?escapeHtml(gc('cFC'))+' bpm':'')}${row('IP AU', gcE('cDopUA'))}${row('IP ACM', gcE('cDopACM'))}${row('Ductus venoso', gcE('cDopDV'))}${row('Ductus arterioso', gcE('cDopDA'))}</div>
+    ${genBlock}
     <div class="preview-section">
       <div class="preview-section-hdr"><div class="ps-icon ps-icon-rose"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg></div><h3>Sinais de alerta atuais</h3></div>
       <div class="preview-row" style="flex-direction:column;gap:6px"><span class="pr-lbl">Alertas</span>${chips('alertasAtuaisC')}</div>
-      ${gc('alertasDescricaoC') && gc('alertasDescricaoC') !== '—' ? rowB('Descrição', gc('alertasDescricaoC')) : ''}
+      ${gc('alertasDescricaoC') && gc('alertasDescricaoC') !== '—' ? rowB('Descrição', escapeHtml(gc('alertasDescricaoC'))) : ''}
     </div>
-    <div class="preview-section">${gc('cHistoriaClinica')&&gc('cHistoriaClinica')!=='—'?rowB('História clínica resumida',gc('cHistoriaClinica')):''}${rowB('Motivo do encaminhamento',gc('cMotivoPrincipal'))}${gc('cObs')&&gc('cObs')!=='—'?rowB('Observações',gc('cObs')):''}</div>
+    <div class="preview-section">${gc('cHistoriaClinica')&&gc('cHistoriaClinica')!=='—'?rowB('História clínica resumida', escapeHtml(gc('cHistoriaClinica'))):''}${rowB('Motivo do encaminhamento', escapeHtml(gc('cMotivoPrincipal')))}${gc('cMotivo')&&gc('cMotivo')!=='—'?rowB('Detalhes adicionais', escapeHtml(gc('cMotivo'))):''}${gc('cObs')&&gc('cObs')!=='—'?rowB('Observações', escapeHtml(gc('cObs'))):''}</div>
+    <div class="doc-checklist">
+      <h3>📎 Documentos a anexar</h3>
+      <p style="font-size:.78rem;color:var(--text-muted);margin:6px 0">${getDcs()}</p>
+    </div>
+    <div id="urgencyAlertContainerCardio" class="urgency-alert-container" role="alert" aria-live="assertive"></div>
     <div class="result-actions">
       <button class="btn btn-whatsapp" onclick="enviarWhatsAppCardio()">${svgSend} Enviar pelo WhatsApp</button>
       <p style="text-align:center;font-size:.76rem;color:var(--text-muted);margin-top:8px;line-height:1.55">O WhatsApp será aberto com os dados da <strong>pré-triagem</strong> já formatados.<br>Lembre-se de <strong>anexar os documentos</strong> marcados acima.<br><strong>Casos graves não devem aguardar resposta do formulário.</strong></p>
-      <button class="btn-print" onclick="mdvPrint()"><svg viewBox="0 0 24 24" fill="currentColor" style="width:17px;height:17px"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg> Imprimir / Salvar PDF</button>
+
+      <div style="margin-top:14px;padding:14px 16px;background:linear-gradient(135deg,rgba(107,63,160,.06),rgba(232,67,122,.04));border:1.5px solid rgba(107,63,160,.18);border-radius:var(--r-md)">
+        <div style="font-size:.78rem;font-weight:800;color:var(--purple);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+          <span>✨</span><span>Outros formatos do resumo</span>
+        </div>
+        <button class="btn-print" onclick="copyProntuarioMD('cardio')" style="margin-bottom:8px;background:#fff;color:var(--purple);border:1.5px solid var(--purple)">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:17px;height:17px"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+          📋 Copiar resumo para Prontuário (Markdown)
+        </button>
+        <button class="btn-print" onclick="copyGEMPrompt('cardio')" style="background:linear-gradient(135deg,#1A73E8,#4285F4);color:#fff;border:none">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:17px;height:17px"><path d="M12 2L9.91 8.84 3 11l6.91 2.16L12 20l2.09-6.84L21 11l-6.91-2.16z"/></svg>
+          ✨ Copiar para análise IA (Gemini · anonimizado)
+        </button>
+        <p style="font-size:.7rem;color:var(--text-muted);margin-top:8px;line-height:1.45">
+          <strong>📋 Prontuário:</strong> resumo limpo em Markdown, dados completos para colar no prontuário institucional.<br>
+          <strong>✨ Gemini:</strong> JSON com <strong>anonimização agressiva</strong> (sem nome/cidade/datas) + prompt clínico estruturado para análise por IA externa.
+        </p>
+      </div>
+
+      <button class="btn-print" onclick="mdvPrint()" style="margin-top:10px"><svg viewBox="0 0 24 24" fill="currentColor" style="width:17px;height:17px"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg> Imprimir / Salvar PDF</button>
       <button class="btn btn-outline" onclick="resetFormCardio()">${svgReset} Nova Pré-Triagem Inteligente</button>
       <div class="footer">Maternidade Darcy Vargas · Pré-Triagem Inteligente · Medicina Fetal & Cardiologia</div>
     </div>`;
@@ -3703,19 +4311,44 @@ function calcIG() {
   const dias = totalDias % 7;
   const igSemEl = document.getElementById('igSem');
   const igDiasEl = document.getElementById('igDias');
-  if (igSemEl) igSemEl.value = sem;
-  if (igDiasEl) igDiasEl.value = dias;
+
+  // v5: NÃO sobrescrever edição manual sem consentir o usuário.
+  // Em obstetrícia, datação por USG (manual) prevalece sobre DUM. Se o usuário
+  // já preencheu IG manualmente e ela diverge do cálculo por DUM, mostra alerta
+  // e MANTÉM o valor manual.
+  const semManual = igSemEl && igSemEl.value !== '' ? parseInt(igSemEl.value, 10) : null;
+  const diasManual = igDiasEl && igDiasEl.value !== '' ? parseInt(igDiasEl.value, 10) : null;
+  const haDivergencia = semManual !== null && Math.abs(semManual - sem) >= 1;
+
+  if (haDivergencia && !window._calcIGForce) {
+    // Mantém valores manuais e informa
+    showToast(
+      '⚠️ IG manual (' + semManual + 'sem) difere do cálculo por DUM (' + sem + 'sem). ' +
+      'Datação por USG prevalece — valor manual mantido.',
+      { type: 'warn', duration: 5500 }
+    );
+  } else {
+    // Caminho normal: aplica cálculo
+    if (igSemEl) igSemEl.value = sem;
+    if (igDiasEl) igDiasEl.value = dias;
+  }
+  window._calcIGForce = false;
+
   const dpp = new Date(dum); dpp.setDate(dpp.getDate() + 280);
   const dppEl = document.getElementById('gestDPP');
-  if (dppEl) dppEl.value = dpp.toISOString().split('T')[0];
+  // DPP: só preenche se vazio (mesma lógica — não sobrescrever manual)
+  if (dppEl && (!dppEl.value || !haDivergencia)) {
+    dppEl.value = dpp.toISOString().split('T')[0];
+  }
   let res = document.getElementById('igCalcResult');
   if (!res) {
     res = document.createElement('div'); res.id = 'igCalcResult'; res.className = 'ig-calc-result';
     if (dumEl.parentNode) dumEl.parentNode.appendChild(res);
   }
+  // Mostra IG calculada por DUM no badge — usuário compara com a manual visualmente
   const label = sem >= 42 ? ' · ⚠️ Pós-termo' : sem >= 37 ? ' · ✅ Termo' : sem >= 28 ? ' · 🟡 Pré-termo tardio' : sem >= 24 ? ' · 🟠 Limite de viabilidade' : sem < 4 ? ' · ⚠️ IG muito precoce' : '';
   res.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px;flex-shrink:0"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>'
-    + '<span><span class="ig-val">' + sem + 'sem ' + dias + 'd</span> · DPP: <span class="dpp-val">' + dpp.toLocaleDateString('pt-BR') + '</span>' + label + '</span>';
+    + '<span>Cálculo por DUM: <span class="ig-val">' + sem + 'sem ' + dias + 'd</span> · DPP: <span class="dpp-val">' + dpp.toLocaleDateString('pt-BR') + '</span>' + label + '</span>';
 }
 document.addEventListener('change', e => { if (e.target.id === 'gestDUM') calcIG(); });
 
@@ -3747,6 +4380,712 @@ function clearFV(el) {
 }
 document.addEventListener('input', e => { if (FV[e.target.id]) validateFV(e.target); });
 
+
+// ════════════════════════════════════════════════════════════════
+//  DIRETRIZ BRASILEIRA 2019 — Indicações de Ecocardiograma Fetal
+// ════════════════════════════════════════════════════════════════
+// Estrutura: Categoria → [Indicação, Classe (I/IIa/IIb/III), Nível (B/C), Detalhe?]
+// Detalhe identifica subcampo a exibir (arritmia, malformação, cariótipo, etc.)
+
+const DIRETRIZ_CARDIO_2019 = {
+  'Fetal': [
+    { idx: 'F1', label: 'Suspeita de anormalidade cardíaca no US obstétrico', classe: 'I',  nivel: 'B' },
+    { idx: 'F2', label: 'Translucência nucal (TN) > 3,5 mm',                   classe: 'I',  nivel: 'B' },
+    { idx: 'F3', label: 'Translucência nucal (TN) entre p95 e 3,5 mm',         classe: 'IIa', nivel: 'B' },
+    { idx: 'F4', label: 'Arritmia fetal (taqui/bradi/extra-sístoles freq.)',   classe: 'I',  nivel: 'B', detalhe: 'arritmia' },
+    { idx: 'F5', label: 'Malformação extracardíaca (onfalocele, hérnia diafragmática etc.)', classe: 'I', nivel: 'B', detalhe: 'malformacao' },
+    { idx: 'F6', label: 'Cariótipo fetal anormal (T21, T18, T13, Monossomia X)', classe: 'I', nivel: 'B', detalhe: 'cariotipo' },
+    { idx: 'F7', label: 'Hidropisia fetal não imune',                          classe: 'I',  nivel: 'B' },
+    { idx: 'F8', label: 'Gemelaridade monocoriônica',                          classe: 'I',  nivel: 'B' },
+    { idx: 'F9', label: "Ducto venoso com onda 'a' reversa",                   classe: 'IIa', nivel: 'B' },
+    { idx: 'F10', label: 'Restrição de crescimento intrauterino (RCIU) precoce/grave', classe: 'IIa', nivel: 'B' },
+    { idx: 'F11', label: 'Artéria umbilical única ou veia umbilical direita persistente', classe: 'IIb', nivel: 'C' }
+  ],
+  'Materna': [
+    { idx: 'M1', label: 'Diabetes Mellitus pré-gestacional (tipo 1 ou 2)',     classe: 'I',  nivel: 'B' },
+    { idx: 'M2', label: 'Doenças autoimunes (Lúpus, Sjögren) com Anti-Ro/SSA ou Anti-La/SSB', classe: 'I', nivel: 'B' },
+    { idx: 'M3', label: 'Fenilcetonúria materna não controlada',               classe: 'I',  nivel: 'B' },
+    { idx: 'M4', label: 'Exposição a teratógenos (Lítio, IECA, ácido retinoico, anticonvulsivantes)', classe: 'I', nivel: 'B', detalhe: 'teratogeno' },
+    { idx: 'M5', label: 'Infecções agudas (Rubéola, CMV, Parvovírus B19)',     classe: 'IIa', nivel: 'B', detalhe: 'infeccao' },
+    { idx: 'M6', label: 'Fertilização in vitro (Reprodução Assistida)',        classe: 'IIa', nivel: 'B' }
+  ],
+  'Familiar': [
+    { idx: 'P1', label: 'Filho anterior com cardiopatia congênita (CC)',       classe: 'I',  nivel: 'B' },
+    { idx: 'P2', label: 'Mãe ou pai com cardiopatia congênita',                classe: 'I',  nivel: 'B' },
+    { idx: 'P3', label: 'Síndromes genéticas mendelianas com envolvimento cardíaco', classe: 'I', nivel: 'B' },
+    { idx: 'P4', label: 'Parentes de 2º grau com cardiopatia congênita',       classe: 'IIb', nivel: 'C' }
+  ],
+  'Negativa': [
+    { idx: 'N1', label: 'Diabetes Mellitus Gestacional (bem controlado)',      classe: 'III', nivel: 'C' },
+    { idx: 'N2', label: 'Exposição a agentes não teratogênicos ou tabagismo isolado', classe: 'III', nivel: 'C' }
+  ]
+};
+
+const DIRETRIZ_INTERPRETACAO = {
+  'I':   '✅ Recomendado — benefício comprovado, indicação formal de ecocardiograma fetal.',
+  'IIa': '✔️ Razoável — peso de evidência favorece a realização do ecocardiograma fetal.',
+  'IIb': '⚖️ Pode ser considerado — utilidade menos estabelecida; avaliação caso a caso.',
+  'III': '⛔ Não recomendado — não há evidência ou consenso favorável; pode não trazer benefício.'
+};
+
+// Handler: usuário escolhe categoria → popula opções específicas
+function onCardioCategoriaChange() {
+  const cat = document.getElementById('cIndicacaoCategoria').value;
+  const wrap = document.getElementById('cIndicacaoEspecificaWrap');
+  const select = document.getElementById('cIndicacaoEspecifica');
+  const classifWrap = document.getElementById('cClassificacaoDiretriz');
+
+  // Reseta tudo
+  if (classifWrap) classifWrap.style.display = 'none';
+  ['cDetalheArritmiaWrap','cDetalheMalformacaoWrap','cDetalheCariotipoWrap',
+   'cDetalheTeratogenoWrap','cDetalheInfeccaoWrap'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  if (!cat || !DIRETRIZ_CARDIO_2019[cat]) {
+    if (wrap) wrap.style.display = 'none';
+    return;
+  }
+
+  // Popula select de indicações específicas
+  select.innerHTML = '<option value="">Selecione a indicação específica...</option>' +
+    DIRETRIZ_CARDIO_2019[cat].map(opt =>
+      `<option value="${escapeHtml(opt.idx)}">${escapeHtml(opt.label)} — Classe ${opt.classe}</option>`
+    ).join('');
+
+  if (wrap) wrap.style.display = 'block';
+}
+
+// Handler: usuário escolhe indicação específica → exibe Classe/Nível + detalhes
+function onCardioIndicacaoChange() {
+  const cat = document.getElementById('cIndicacaoCategoria').value;
+  const idx = document.getElementById('cIndicacaoEspecifica').value;
+  const classifWrap = document.getElementById('cClassificacaoDiretriz');
+
+  // Esconde todos os subcampos de detalhe
+  ['cDetalheArritmiaWrap','cDetalheMalformacaoWrap','cDetalheCariotipoWrap',
+   'cDetalheTeratogenoWrap','cDetalheInfeccaoWrap'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  if (!cat || !idx) {
+    if (classifWrap) classifWrap.style.display = 'none';
+    return;
+  }
+
+  const opt = (DIRETRIZ_CARDIO_2019[cat] || []).find(o => o.idx === idx);
+  if (!opt) return;
+
+  // Atualiza display da Classe/Nível
+  const classeEl = document.getElementById('cIndicacaoClasseDisplay');
+  const nivelEl = document.getElementById('cIndicacaoNivelDisplay');
+  const interpEl = document.getElementById('cIndicacaoInterp');
+  if (classeEl) {
+    classeEl.textContent = 'Classe ' + opt.classe;
+    classeEl.className = 'diretriz-val classe-' + opt.classe;
+  }
+  if (nivelEl) nivelEl.textContent = 'Nível ' + opt.nivel;
+  if (interpEl) interpEl.textContent = DIRETRIZ_INTERPRETACAO[opt.classe] || '';
+
+  // Hidden inputs (entram no payload e nos outputs)
+  document.getElementById('cIndicacaoClasse').value = opt.classe;
+  document.getElementById('cIndicacaoNivel').value = opt.nivel;
+
+  if (classifWrap) classifWrap.style.display = 'block';
+
+  // Sugere urgência baseada na Classe (Classe I = prioridade clínica; Classe III = eletivo)
+  // Apenas SUGESTÃO — usuário pode sobrescrever na finalização
+  let sugUrg = 'eletivo';
+  if (opt.classe === 'I') sugUrg = 'prioritario';
+  if (opt.idx === 'F4' || opt.idx === 'F7') sugUrg = 'urgente'; // arritmia ou hidropsia
+  urgenciaCardio = sugUrg;
+
+  // Mostra subcampo de detalhe se aplicável
+  const detalheMap = {
+    'arritmia': 'cDetalheArritmiaWrap',
+    'malformacao': 'cDetalheMalformacaoWrap',
+    'cariotipo': 'cDetalheCariotipoWrap',
+    'teratogeno': 'cDetalheTeratogenoWrap',
+    'infeccao': 'cDetalheInfeccaoWrap'
+  };
+  if (opt.detalhe && detalheMap[opt.detalhe]) {
+    const det = document.getElementById(detalheMap[opt.detalhe]);
+    if (det) det.style.display = 'block';
+  }
+}
+
+// Adiciona tooltip da diretriz
+if (typeof TIPS !== 'undefined') {
+  TIPS['diretriz2019'] = {
+    term: 'Diretriz Brasileira 2019',
+    full: 'Diretriz de Indicação de Ecocardiograma Fetal — Sociedade Brasileira de Cardiologia',
+    desc: 'A diretriz classifica cada indicação por Classe de Recomendação (I, IIa, IIb, III) e Nível de Evidência (B, C). Classe I = recomendação forte; IIa = razoável; IIb = pode ser considerado; III = não recomendado. Nível B = estudos não-aleatorizados de boa qualidade; Nível C = consenso de especialistas.',
+    relevance: '⚠️ Pontos de atenção: (1) Diabetes Gestacional bem controlado e focus ecogênico isolado em paciente de baixo risco NÃO são indicações formais (Classe III). (2) TN entre p95–3,5mm é Classe IIa; >3,5mm torna-se Classe I imperativa. (3) Onda "a" reversa no ductus venoso é marcador hemodinâmico crítico de disfunção diastólica/IC direita, justificando Classe IIa mesmo sem malformação estrutural visível.'
+  };
+}
+
+
+// ════════════════════════════════════════════════════════════════
+//  OUTPUTS TRIPLOS — WhatsApp · Prontuário · GEM Gemini (anonimizado)
+// ════════════════════════════════════════════════════════════════
+
+// ── buildProntuarioMarkdown(): resumo limpo para colar no prontuário ──
+// Sem emojis decorativos, sem ASCII-art, prosa estruturada para HSCMA/SES-SC
+function buildProntuarioMarkdown(specialty) {
+  const gv = id => g(id);
+  const gChk = gid => {
+    const its = document.querySelectorAll('#'+gid+' .check-item.checked input');
+    return its.length ? Array.from(its).map(i => i.value).join('; ') : 'nenhuma referida';
+  };
+  const safeBlock = (label, val) => {
+    if (!val || val === '—') return '';
+    return `**${label}:** ${val}\n\n`;
+  };
+
+  const caseID = currentCaseID || generateCaseID(specialty);
+  const now = new Date();
+  const dataStr = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  const igStr = gv('igSem') + ' sem' + (gv('igDias') && gv('igDias') !== '—' ? ' ' + gv('igDias') + ' d' : '');
+  const especEnc = specialty === 'cardio'
+    ? 'Cardiologia Fetal — Maternidade Darcy Vargas'
+    : 'Medicina Fetal — Maternidade Darcy Vargas';
+
+  let md = `## Encaminhamento — ${especEnc}\n\n`;
+  md += `**Caso:** ${caseID} · **Recebido em:** ${dataStr}\n\n`;
+  md += `---\n\n### Identificação\n\n`;
+  md += safeBlock('Paciente', gv('gestNome'));
+  md += safeBlock('Idade', gv('gestIdade') !== '—' ? gv('gestIdade') + ' anos' : '');
+  md += safeBlock('Município de origem', gv('gestCidade'));
+  md += safeBlock('Cartão SUS', gv('gestSUS'));
+  md += safeBlock('Telefone', gv('gestTel'));
+
+  md += `\n### Dados Obstétricos\n\n`;
+  md += safeBlock('Idade gestacional', igStr);
+  md += safeBlock('DUM', gv('gestDUM'));
+  md += safeBlock('DPP', gv('gestDPP'));
+  md += safeBlock('Datação', gv('gestDatacao'));
+  md += safeBlock('GPA', `G${gv('obsG')} P${gv('obsP')} A${gv('obsA')}`);
+  md += safeBlock('Tipo de gestação', gv('gestTipo'));
+
+  const comorb = gChk('comorb');
+  if (comorb !== 'nenhuma referida') md += safeBlock('Comorbidades maternas', comorb);
+  const hf = gv('histFamiliar');
+  if (hf && hf !== '—') md += safeBlock('Histórico familiar', hf);
+
+  if (specialty === 'cardio') {
+    md += `\n### Indicação para Ecocardiograma Fetal — Diretriz Brasileira 2019\n\n`;
+    md += safeBlock('Categoria', gv('cIndicacaoCategoria'));
+    const idx = gv('cIndicacaoEspecifica');
+    if (idx && idx !== '—') {
+      const cat = gv('cIndicacaoCategoria');
+      const opt = (DIRETRIZ_CARDIO_2019[cat] || []).find(o => o.idx === idx);
+      if (opt) {
+        md += safeBlock('Indicação específica', opt.label);
+        md += safeBlock('Classe de Recomendação', `Classe ${opt.classe}`);
+        md += safeBlock('Nível de Evidência', `Nível ${opt.nivel}`);
+        md += safeBlock('Interpretação', DIRETRIZ_INTERPRETACAO[opt.classe]);
+      }
+    }
+    // Detalhes adicionais conforme indicação
+    ['cDetalheArritmia','cDetalheMalformacao','cDetalheCariotipo','cDetalheTeratogeno','cDetalheInfeccao'].forEach(id => {
+      const v = gv(id);
+      if (v && v !== '—') md += safeBlock('Detalhe adicional', v);
+    });
+
+    md += `\n### Ecocardiograma Fetal\n\n`;
+    md += safeBlock('Já realizado', gv('cEcoFeito'));
+    if (gv('cEcoFeito') !== 'Nao' && gv('cEcoFeito') !== '—') {
+      md += safeBlock('Data', gv('cEcoData'));
+      md += safeBlock('IG no exame', gv('cEcoIG') !== '—' ? gv('cEcoIG') + ' sem' : '');
+      md += safeBlock('Resultado', gv('cEcoResultado'));
+      const achados = gChk('cEcoAchados');
+      if (achados !== 'nenhuma referida') md += safeBlock('Achados', achados);
+      md += safeBlock('Hipótese diagnóstica', gv('cHipotese'));
+      md += safeBlock('Descrição', gv('cEcoDesc'));
+    }
+
+    md += `\n### Ritmo e Doppler Fetal\n\n`;
+    md += safeBlock('Ritmo cardíaco fetal', gv('cRitmo'));
+    md += safeBlock('Frequência cardíaca', gv('cFC') !== '—' ? gv('cFC') + ' bpm' : '');
+    md += safeBlock('Observações de ritmo', gv('cRitmoObs'));
+    md += safeBlock('IP Artéria Umbilical', gv('cDopUA'));
+    md += safeBlock('IP Artéria Cerebral Média (ACM)', gv('cDopACM'));
+    md += safeBlock('Ductus venoso', gv('cDopDV'));
+    md += safeBlock('Ductus arterioso', gv('cDopDA'));
+    md += safeBlock('IP Uterinas média', gv('cIpUter'));
+
+    md += `\n### Genética\n\n`;
+    md += safeBlock('NIPT', gv('cNipt') !== 'Nao' && gv('cNipt') !== '—' ? gv('cNipt') + (gv('cNiptVal') !== '—' ? ' — ' + gv('cNiptVal') : '') : 'não realizado');
+    md += safeBlock('Cariótipo', gv('cCario') !== 'Nao' && gv('cCario') !== '—' ? gv('cCario') + (gv('cCarioVal') !== '—' ? ' — ' + gv('cCarioVal') : '') : 'não realizado');
+
+    const alertasC = gChk('alertasAtuaisC');
+    md += `\n### Sinais de Alerta Atuais\n\n`;
+    md += safeBlock('Sinais presentes', alertasC);
+    md += safeBlock('Descrição', gv('alertasDescricaoC'));
+
+    md += `\n### Avaliação Clínica\n\n`;
+    md += safeBlock('História clínica resumida', gv('cHistoriaClinica'));
+    md += safeBlock('Motivo do encaminhamento', gv('cMotivoPrincipal'));
+    md += safeBlock('Detalhes adicionais', gv('cMotivo'));
+    md += safeBlock('Observações', gv('cObs'));
+
+  } else {
+    // ── Medicina Fetal ──
+    const rastreioFez = gv('rastreioRealizou');
+    md += `\n### Rastreio do 1º Trimestre\n\n`;
+    md += safeBlock('Rastreio realizado', rastreioFez);
+    if (rastreioFez === 'Sim') {
+      md += safeBlock('TN', gv('tn') !== '—' ? gv('tn') + ' mm' + (gv('tnMom') !== '—' ? ' (' + gv('tnMom') + ')' : '') : '');
+      md += safeBlock('Osso nasal', gv('oNasal'));
+      md += safeBlock('Ductus venoso', gv('ductusVen'));
+      md += safeBlock('Regurgitação tricúspide', gv('regurgTri'));
+      md += safeBlock('IP uterinas', gv('ipUterinas') !== '—' ? gv('ipUterinas') + (gv('ipUterinasP') !== '—' ? ' (' + gv('ipUterinasP') + ')' : '') : '');
+      md += safeBlock('PAPP-A', gv('pappA') !== '—' ? gv('pappA') + ' MoM' : '');
+      md += safeBlock('β-hCG livre', gv('bhcg') !== '—' ? gv('bhcg') + ' MoM' : '');
+      md += safeBlock('Risco T21', gv('riscoT21'));
+      md += safeBlock('Risco T18', gv('riscoT18'));
+      md += safeBlock('Risco T13', gv('riscoT13'));
+      md += safeBlock('Risco pré-eclâmpsia precoce', gv('riscoPE'));
+    } else if (rastreioFez === 'Nao') {
+      md += safeBlock('Motivo de não realização', gv('rastreioMotivo'));
+    }
+
+    md += `\n### Eco Morfológico\n\n`;
+    const ecoFez = gv('ecoRealizado');
+    md += safeBlock('Realizado', ecoFez);
+    if (ecoFez !== 'Nao' && ecoFez !== '—') {
+      md += safeBlock('Data', gv('ecoData'));
+      md += safeBlock('IG na época', gv('ecoIG') !== '—' ? gv('ecoIG') + ' sem' : '');
+      md += safeBlock('Resultado geral', gv('ecoResultado'));
+      const sist = gChk('sistemas');
+      if (sist !== 'nenhuma referida') md += safeBlock('Sistemas acometidos', sist);
+      md += safeBlock('Outro sistema', gv('outroSistemaDesc'));
+      md += safeBlock('Suspeita diagnóstica', gv('ecoDiag'));
+      md += safeBlock('Crescimento fetal', gv('crescFetal'));
+      md += safeBlock('Líquido amniótico', gv('liquidoAmn') + (gv('ilaVal') !== '—' ? ' — ' + gv('ilaVal') : ''));
+      md += safeBlock('Hidropsia', gv('hidropsia'));
+    }
+
+    md += `\n### Cardiologia Fetal\n\n`;
+    md += safeBlock('Suspeita de cardiopatia congênita', gv('cardioSuspeita'));
+    if (gv('cardioSuspeita') !== 'Nao' && gv('cardioSuspeita') !== '—' && gv('cardioSuspeita') !== '') {
+      md += safeBlock('Ecocardiograma fetal', gv('ecoCardio'));
+      const eachados = gChk('ecoAchados');
+      if (eachados !== 'nenhuma referida') md += safeBlock('Achados eco', eachados);
+      md += safeBlock('Hipótese CPC', gv('cardioHip'));
+      md += safeBlock('Descrição eco', gv('cardioDesc'));
+      md += safeBlock('Ritmo fetal', gv('ritmo'));
+      md += safeBlock('IP Artéria Umbilical', gv('dopUA'));
+      md += safeBlock('IP ACM', gv('dopACM'));
+      md += safeBlock('Ductus venoso', gv('dopDV'));
+      md += safeBlock('Ductus arterioso', gv('dopDA'));
+    }
+
+    md += `\n### Genética\n\n`;
+    md += safeBlock('NIPT', gv('nipt') !== 'Nao' && gv('nipt') !== '—' ? gv('nipt') + (gv('niptRes') !== '—' ? ' — ' + gv('niptRes') : '') : 'não realizado');
+    md += safeBlock('Cariótipo', gv('cariotipo') !== 'Nao' && gv('cariotipo') !== '—' ? gv('cariotipo') + (gv('carioRes') !== '—' ? ' — ' + gv('carioRes') : '') : 'não realizado');
+
+    const alertas = gChk('alertasAtuais');
+    md += `\n### Sinais de Alerta Atuais\n\n`;
+    md += safeBlock('Sinais presentes', alertas);
+    md += safeBlock('Descrição', gv('alertasDescricao'));
+
+    md += `\n### Avaliação Clínica\n\n`;
+    md += safeBlock('História clínica resumida', gv('historiaClinica'));
+    md += safeBlock('Motivo do encaminhamento', gv('motivoEnc'));
+    md += safeBlock('Observações adicionais', gv('obsAdic'));
+  }
+
+  md += `\n---\n\n### Profissional Solicitante\n\n`;
+  md += safeBlock('Nome', gv('medNome'));
+  md += safeBlock('Categoria', gv('medCategoria'));
+  md += safeBlock('Registro', gv('medCRM') + (gv('medEstado') !== '—' ? '-' + gv('medEstado') : ''));
+  md += safeBlock('Especialidade', gv('medEsp'));
+  md += safeBlock('Serviço', gv('medServico'));
+  md += safeBlock('Telefone', gv('medTel'));
+
+  md += `\n*Este resumo foi gerado pelo sistema de Pré-Triagem Inteligente da MDV. Não substitui a Regulação Estadual oficial nem a avaliação médica presencial.*`;
+
+  return md;
+}
+
+// ── buildGEMPrompt(): JSON anonimizado + prompt para análise pelo GEM Gemini ──
+// ⚠️ Premissa LGPD: ZERO dados pessoais identificáveis
+//    - Nome → removido completamente
+//    - Cidade → mesorregião IBGE
+//    - Idade → faixa etária
+//    - IG → trimestre
+//    - Datas → relativas ('há X semanas')
+//    - Telefones, SUS, CRM → removidos
+//    - v5: campos livres passam por sanitizeFreeText (remove PII residual)
+
+// ── v5: Sanitizador de texto livre — remove PII residual antes de enviar ao LLM ──
+// Médicos frequentemente digitam dados pessoais em campos livres (história clínica,
+// motivo, observações). Mesmo com anonimização estruturada, esse texto vazaria PII
+// para o Gemini. Esta função aplica regex defensivos sobre cada string livre.
+function sanitizeFreeText(txt, opts) {
+  if (!txt || typeof txt !== 'string') return txt;
+  opts = opts || {};
+  let s = txt;
+
+  // 1. Remover sequências numéricas longas (≥6 dígitos) — candidatos a SUS, prontuário, telefone, CPF
+  s = s.replace(/\b\d[\d\s.\-/]{5,}\b/g, '[NÚMERO REMOVIDO]');
+
+  // 2. Datas absolutas (dd/mm/aaaa, dd-mm-aaaa, aaaa-mm-dd) → marcador
+  s = s.replace(/\b\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}\b/g, '[DATA REMOVIDA]');
+  s = s.replace(/\b\d{4}[\/\-.]\d{1,2}[\/\-.]\d{1,2}\b/g, '[DATA REMOVIDA]');
+
+  // 3. Nome da paciente (se informado) — remover do texto livre.
+  // v5.1: critérios mais inteligentes para evitar falsos positivos:
+  //   - Cada parte do nome deve ter ≥4 chars (não 3) — evita "Ana", "Eva" curtas
+  //   - Deve ter pelo menos uma maiúscula original (nome próprio típico)
+  //   - Não pode estar em uma blacklist de palavras clínicas comuns
+  //   - Procura case-sensitive primeiro, depois case-insensitive só se nome tem ≥5 chars
+  try {
+    const gestNome = (document.getElementById('gestNome') || {}).value || '';
+    if (gestNome.trim().length >= 4) {
+      const palavrasClinicasComuns = new Set([
+        'teste','exame','caso','paciente','gestante','feto','mae','filho','filha',
+        'dado','dados','outro','outra','normal','alterado','presente','ausente',
+        'positivo','negativo','sinal','sinais','quadro','tipo','total','parcial'
+      ]);
+      const partes = gestNome.trim().split(/\s+/)
+        .filter(p => p.length >= 4)
+        .filter(p => /[A-ZÀ-Ý]/.test(p[0])) // primeira letra maiúscula (nome próprio)
+        .filter(p => !palavrasClinicasComuns.has(p.toLowerCase()));
+      partes.forEach(p => {
+        // Para nomes ≥5 chars, busca case-insensitive; para 4 chars, só exato
+        const flags = p.length >= 5 ? 'gi' : 'g';
+        const re = new RegExp('\\b' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', flags);
+        s = s.replace(re, '[NOME REMOVIDO]');
+      });
+    }
+  } catch(e) {}
+
+  // 4. Cidade da paciente (se informada) — substituir por "[cidade removida]"
+  try {
+    const gestCidade = (document.getElementById('gestCidade') || {}).value || '';
+    if (gestCidade.trim().length >= 4) {
+      const re = new RegExp('\\b' + gestCidade.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
+      s = s.replace(re, '[CIDADE REMOVIDA]');
+    }
+  } catch(e) {}
+
+  // 5. Padrões "prontuário 12345", "matrícula 67890", etc.
+  s = s.replace(/\b(prontu[aá]rio|matr[ií]cula|registro|protocolo|atendimento|cart[aã]o\s*sus|sus|cns|cpf|rg|crm)\s*[:\-#nN°º]*\s*\d+\b/gi, '[$1 REMOVIDO]');
+
+  // 6. Email
+  s = s.replace(/\b[\w.+-]+@[\w-]+\.[\w.-]+\b/g, '[EMAIL REMOVIDO]');
+
+  // 7. Telefones que escaparam (formatos típicos brasileiros)
+  s = s.replace(/\b(?:\+?55\s*)?\(?\d{2}\)?\s*9?\s*\d{4}[\s\-]?\d{4}\b/g, '[TELEFONE REMOVIDO]');
+
+  return s.trim() || null;
+}
+
+function buildGEMPrompt(specialty) {
+  const gv = id => g(id);
+  const gChk = gid => {
+    const its = document.querySelectorAll('#'+gid+' .check-item.checked input');
+    return its.length ? Array.from(its).map(i => i.value) : [];
+  };
+  // v5: cleanVal agora aplica sanitização de PII em texto livre.
+  // Para listas/valores estruturados (selects, números), use cleanValRaw.
+  const cleanValRaw = v => (v && v !== '—') ? v : null;
+  const cleanVal = v => {
+    const raw = cleanValRaw(v);
+    return raw ? sanitizeFreeText(raw) : null;
+  };
+
+  const caseID = currentCaseID || generateCaseID(specialty);
+
+  const dadosAnonimizados = {
+    metadata: {
+      sistema: 'MDV — Pré-Triagem Inteligente',
+      versao_diretriz_cardio: CONFIG.diretrizCardioVersao,
+      especialidade: specialty === 'cardio' ? 'Cardiologia Fetal' : 'Medicina Fetal',
+      caso_id_pseudonimo: caseID,  // ID interno, não permite reidentificação externa
+      timestamp_relativo: 'consulta gerada agora'
+    },
+    paciente: {
+      faixa_etaria: anonFaixaEtaria(gv('gestIdade')),
+      regiao_origem: anonRegiao(gv('gestCidade')),
+      idade_gestacional: anonIG(gv('igSem')),
+      // datas, nome, SUS, telefone, GPA exatos REMOVIDOS por LGPD
+      paridade_geral: (parseInt(gv('obsP'),10) > 0) ? 'multípara' : 'nulípara',
+      tipo_gestacao: cleanVal(gv('gestTipo')),
+      comorbidades: gChk('comorb'),
+      historico_familiar_relevante: cleanVal(gv('histFamiliar'))
+    }
+  };
+
+  if (specialty === 'cardio') {
+    const cat = gv('cIndicacaoCategoria');
+    const idx = gv('cIndicacaoEspecifica');
+    const opt = (DIRETRIZ_CARDIO_2019[cat] || []).find(o => o.idx === idx);
+
+    dadosAnonimizados.indicacao_diretriz_2019 = opt ? {
+      categoria: cat,
+      indicacao: opt.label,
+      classe_recomendacao: opt.classe,
+      nivel_evidencia: opt.nivel,
+      interpretacao: DIRETRIZ_INTERPRETACAO[opt.classe]
+    } : null;
+
+    const detalhesArr = [
+      cleanVal(gv('cDetalheArritmia')),
+      cleanVal(gv('cDetalheMalformacao')),
+      cleanVal(gv('cDetalheCariotipo')),
+      cleanVal(gv('cDetalheTeratogeno')),
+      cleanVal(gv('cDetalheInfeccao'))
+    ].filter(Boolean);
+    if (detalhesArr.length) dadosAnonimizados.detalhes_indicacao = detalhesArr;
+
+    dadosAnonimizados.ecocardiograma_fetal = {
+      realizado: gv('cEcoFeito'),
+      resultado: cleanVal(gv('cEcoResultado')),
+      achados: gChk('cEcoAchados'),
+      hipotese_diagnostica: cleanVal(gv('cHipotese')),
+      descricao_complementar: cleanVal(gv('cEcoDesc'))
+    };
+    dadosAnonimizados.ritmo_doppler = {
+      ritmo: cleanVal(gv('cRitmo')),
+      frequencia_cardiaca_bpm: cleanVal(gv('cFC')),
+      observacoes_ritmo: cleanVal(gv('cRitmoObs')),
+      ip_arteria_umbilical: cleanVal(gv('cDopUA')),
+      ip_acm: cleanVal(gv('cDopACM')),
+      ductus_venoso: cleanVal(gv('cDopDV')),
+      ductus_arterioso: cleanVal(gv('cDopDA')),
+      ip_uterinas: cleanVal(gv('cIpUter'))
+    };
+    dadosAnonimizados.genetica = {
+      nipt: cleanVal(gv('cNipt')),
+      nipt_resultado: cleanVal(gv('cNiptVal')),
+      cariotipo: cleanVal(gv('cCario')),
+      cariotipo_resultado: cleanVal(gv('cCarioVal'))
+    };
+    dadosAnonimizados.sinais_alerta_atuais = gChk('alertasAtuaisC');
+    dadosAnonimizados.descricao_alerta = cleanVal(gv('alertasDescricaoC'));
+    dadosAnonimizados.historia_clinica_resumida = cleanVal(gv('cHistoriaClinica'));
+    dadosAnonimizados.motivo_encaminhamento = cleanVal(gv('cMotivoPrincipal'));
+    dadosAnonimizados.detalhes_motivo = cleanVal(gv('cMotivo'));
+    dadosAnonimizados.observacoes = cleanVal(gv('cObs'));
+  } else {
+    dadosAnonimizados.rastreio_1o_trimestre = {
+      realizado: gv('rastreioRealizou'),
+      tn_mm: cleanVal(gv('tn')),
+      tn_mom: cleanVal(gv('tnMom')),
+      osso_nasal: cleanVal(gv('oNasal')),
+      ductus_venoso: cleanVal(gv('ductusVen')),
+      regurgitacao_tricuspide: cleanVal(gv('regurgTri')),
+      ip_uterinas: cleanVal(gv('ipUterinas')),
+      papp_a_mom: cleanVal(gv('pappA')),
+      bhcg_mom: cleanVal(gv('bhcg')),
+      risco_t21: cleanVal(gv('riscoT21')),
+      risco_t18: cleanVal(gv('riscoT18')),
+      risco_t13: cleanVal(gv('riscoT13')),
+      risco_pe_precoce: cleanVal(gv('riscoPE'))
+    };
+    dadosAnonimizados.eco_morfologico = {
+      realizado: gv('ecoRealizado'),
+      resultado: cleanVal(gv('ecoResultado')),
+      sistemas_acometidos: gChk('sistemas'),
+      outro_sistema: cleanVal(gv('outroSistemaDesc')),
+      suspeita_diagnostica: cleanVal(gv('ecoDiag')),
+      crescimento_fetal: cleanVal(gv('crescFetal')),
+      liquido_amniotico: cleanVal(gv('liquidoAmn')),
+      hidropsia: cleanVal(gv('hidropsia'))
+    };
+    dadosAnonimizados.cardiologia_fetal = {
+      suspeita_cpc: cleanVal(gv('cardioSuspeita')),
+      eco_cardio: cleanVal(gv('ecoCardio')),
+      achados_eco: gChk('ecoAchados'),
+      hipotese_cpc: cleanVal(gv('cardioHip')),
+      descricao_cardio: cleanVal(gv('cardioDesc')),
+      ritmo: cleanVal(gv('ritmo')),
+      ip_arteria_umbilical: cleanVal(gv('dopUA')),
+      ip_acm: cleanVal(gv('dopACM'))
+    };
+    dadosAnonimizados.genetica = {
+      nipt: cleanVal(gv('nipt')),
+      nipt_resultado: cleanVal(gv('niptRes')),
+      cariotipo: cleanVal(gv('cariotipo')),
+      cariotipo_resultado: cleanVal(gv('carioRes'))
+    };
+    dadosAnonimizados.sinais_alerta_atuais = gChk('alertasAtuais');
+    dadosAnonimizados.descricao_alerta = cleanVal(gv('alertasDescricao'));
+    dadosAnonimizados.historia_clinica_resumida = cleanVal(gv('historiaClinica'));
+    dadosAnonimizados.motivo_encaminhamento = cleanVal(gv('motivoEnc'));
+    dadosAnonimizados.observacoes = cleanVal(gv('obsAdic'));
+  }
+
+  // Limpeza recursiva de nulls
+  function pruneNulls(obj) {
+    if (Array.isArray(obj)) return obj.filter(v => v != null && v !== '');
+    if (obj && typeof obj === 'object') {
+      const out = {};
+      for (const [k, v] of Object.entries(obj)) {
+        if (v == null || v === '') continue;
+        if (Array.isArray(v) && v.length === 0) continue;
+        if (typeof v === 'object') {
+          const cleaned = pruneNulls(v);
+          if (Object.keys(cleaned).length || Array.isArray(cleaned) && cleaned.length) out[k] = cleaned;
+        } else {
+          out[k] = v;
+        }
+      }
+      return out;
+    }
+    return obj;
+  }
+
+  const dadosLimpos = pruneNulls(dadosAnonimizados);
+
+  const prompt = `Você atua como **médico especialista em ${specialty === 'cardio' ? 'Cardiologia Fetal' : 'Medicina Fetal'}** revisando, em consultório, um caso encaminhado para a Maternidade Darcy Vargas (Joinville–SC, referência estadual SES/SC).
+
+Os dados abaixo foram **agressivamente anonimizados** (sem nome, datas absolutas, cidade exata ou identificadores) em conformidade com a LGPD e seguem o padrão da Diretriz Brasileira de Indicação de Ecocardiograma Fetal (2019) quando aplicável.
+
+**Sua tarefa:**
+
+1. **Síntese do caso** (3–5 linhas) integrando dados clínicos, obstétricos e exames disponíveis.
+2. **Diagnósticos diferenciais** ordenados por probabilidade, com justificativa clínica de cada um.
+3. **Exames complementares sugeridos** para refinar diagnóstico (USG seriado, ecocardiograma fetal, NIPT, cariótipo via amniocentese/BVC, etc.) com a janela gestacional ideal.
+4. **Plano de seguimento** estruturado: periodicidade de consultas, exames de vigilância, sinais que devem motivar reavaliação imediata.
+5. **Sinais de alarme** específicos para esta paciente — o que a equipe deve monitorar prioritariamente.
+6. **Comunicação para a gestante e família** — pontos-chave a serem transmitidos com linguagem clara e empática.
+7. **Referências** — guideline-based, preferencialmente brasileiras (FEBRASGO, SBC, SBP) ou internacionais relevantes (ISUOG, AHA, AEPC).
+
+Mantenha o raciocínio clínico transparente, cite evidências quando relevante e indique explicitamente quando a evidência for limitada.
+
+---
+
+## DADOS ESTRUTURADOS DO CASO (JSON anonimizado)
+
+\`\`\`json
+${JSON.stringify(dadosLimpos, null, 2)}
+\`\`\`
+
+---
+
+*Caso pseudoanônimo gerado pelo sistema MDV — Pré-Triagem Inteligente. Use exclusivamente para análise clínica auxiliar; não substitui avaliação presencial nem a Regulação Estadual oficial.*`;
+
+  return prompt;
+}
+
+// ── v5.1: Versão COMPACTA do prompt Gemini, otimizada para caber na URL do WhatsApp ──
+// O prompt original tem ~1500 chars de instruções + JSON formatado (mais ~1500-3000).
+// O encode da URL do wa.me ~dobra o tamanho. Esta versão:
+//   1. Reduz instruções a ~400 chars (tarefa em uma linha por item)
+//   2. Minifica o JSON (sem indentação)
+//   3. Remove preâmbulo redundante
+// Resultado típico: <2200 chars puros = <3500 chars encoded → cabe folgado na URL.
+function buildGEMPromptCompact(specialty) {
+  const gv = id => g(id);
+  const gChk = gid => {
+    const its = document.querySelectorAll('#'+gid+' .check-item.checked input');
+    return its.length ? Array.from(its).map(i => i.value) : [];
+  };
+  const cleanValRaw = v => (v && v !== '—') ? v : null;
+  const cleanVal = v => {
+    const raw = cleanValRaw(v);
+    return raw ? sanitizeFreeText(raw) : null;
+  };
+
+  const caseID = currentCaseID || generateCaseID(specialty);
+
+  // Reuso do mesmo objeto de dados anonimizados — chamamos a função grande
+  // e extraímos apenas o JSON dela através de regex (evita duplicação de código)
+  let dadosJsonStr = '';
+  try {
+    const fullPrompt = buildGEMPrompt(specialty);
+    const m = fullPrompt.match(/```json\s*([\s\S]*?)```/);
+    if (m && m[1]) {
+      // Re-parse e re-stringify minificado
+      const obj = JSON.parse(m[1].trim());
+      dadosJsonStr = JSON.stringify(obj); // sem indentação
+    }
+  } catch(e) {
+    dadosJsonStr = '{}';
+  }
+
+  const especialidade = specialty === 'cardio' ? 'Cardiologia Fetal' : 'Medicina Fetal';
+
+  return `Atue como especialista em ${especialidade} (MDV/SES-SC). Caso anonimizado (LGPD). Forneça em ordem:
+1) Síntese (3-5 linhas)
+2) Diferenciais ordenados por probabilidade
+3) Exames sugeridos com janela gestacional
+4) Plano de seguimento + sinais de alarme
+5) Comunicação à família
+6) Referências (FEBRASGO/SBC/ISUOG/AHA)
+${specialty === 'cardio' ? '\nUse Diretriz Brasileira 2019 de Eco Fetal quando aplicável.' : ''}
+
+CASO (JSON):
+${dadosJsonStr}`;
+}
+
+
+async function copyProntuarioMD(specialty) {
+  const md = buildProntuarioMarkdown(specialty);
+  const ok = await copyToClipboard(md);
+  if (ok) {
+    showToast('✅ Copiado! Texto na área de transferência — cole no prontuário (Ctrl+V)', { type: 'success', duration: 3200 });
+  } else {
+    showToast('❌ Falha ao copiar — selecione e copie manualmente', { type: 'error' });
+    // Fallback: abrir em modal
+    showCopyModal('Resumo para Prontuário', md);
+  }
+}
+
+async function copyGEMPrompt(specialty) {
+  const prompt = buildGEMPrompt(specialty);
+  const ok = await copyToClipboard(prompt);
+  if (ok) {
+    showToast('✅ Copiado! Texto anonimizado na área de transferência — abra o GEM Gemini e cole (Ctrl+V)', { type: 'success', duration: 3500 });
+  } else {
+    showToast('❌ Falha ao copiar — selecione e copie manualmente', { type: 'error' });
+    showCopyModal('Análise Gemini (anonimizado)', prompt);
+  }
+}
+
+// ── Modal de fallback para copiar manualmente ──
+function showCopyModal(title, content) {
+  // Remove modal anterior se existir
+  const existing = document.getElementById('copyModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'copyModal';
+  modal.style.cssText = `position:fixed;inset:0;background:rgba(61,18,102,.55);z-index:9999;
+    display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)`;
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:16px;max-width:720px;width:100%;max-height:85vh;
+      display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(61,18,102,.4)">
+      <div style="padding:16px 20px;background:linear-gradient(135deg,var(--purple),var(--rose));color:#fff;
+        display:flex;align-items:center;justify-content:space-between">
+        <strong style="font-size:.95rem">${escapeHtml(title)}</strong>
+        <button onclick="document.getElementById('copyModal').remove()" style="background:rgba(255,255,255,.2);
+          border:none;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:.85rem">✕ Fechar</button>
+      </div>
+      <textarea readonly style="flex:1;border:none;padding:16px 20px;font-family:'SF Mono',Consolas,Monaco,monospace;
+        font-size:.78rem;line-height:1.5;color:var(--text);resize:none;outline:none;background:#fafafa;
+        min-height:300px">${escapeHtml(content)}</textarea>
+      <div style="padding:12px 20px;display:flex;gap:10px;justify-content:flex-end;background:#f5f0fa">
+        <button onclick="(function(){const ta=document.querySelector('#copyModal textarea');ta.select();document.execCommand('copy');showToast('📋 Copiado');})()"
+          style="background:var(--purple);color:#fff;border:none;border-radius:10px;padding:10px 16px;
+          font-weight:700;cursor:pointer">📋 Selecionar e Copiar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  // Auto-select do conteúdo
+  setTimeout(() => {
+    const ta = modal.querySelector('textarea');
+    if (ta) ta.select();
+  }, 100);
+}
+
+
 // ── WA contact ───────────────────────────────────────────────
 function openWhatsAppContact() { window.open('https://wa.me/'+CONFIG.whatsapp, '_blank'); }
 function saveWAConfig() {
@@ -3770,8 +5109,13 @@ try {
 
 
 // ── Urgency alert in result ─────────────────────────────────
+// v5: container diferenciado por especialidade (resolve bug de ID duplicado v4 que
+// fazia o banner "🚨 CONTATO IMEDIATO" só aparecer no fluxo fetal — no cardio nunca renderizava)
 function showUrgencyAlert() {
-  const container = document.getElementById('urgencyAlertContainer');
+  const containerId = currentSpecialty === 'cardio'
+    ? 'urgencyAlertContainerCardio'
+    : 'urgencyAlertContainerFetal';
+  const container = document.getElementById(containerId);
   if (!container) return;
   const u = currentSpecialty === 'cardio' ? urgenciaCardio : urgencia;
   if (u === 'urgente') {
@@ -3863,6 +5207,8 @@ if (new URLSearchParams(window.location.search).get('admin') === '1') {
 // ══════════════════════════════════════════════════════════════
 
 // ── Gerador de ID único do caso ──────────────────────────────
+// FIX v2 (Mbula): versão anterior usava últimos 3 dígitos do timestamp
+// → risco de colisão ~1:1000 em uso simultâneo. Corrigido com crypto.randomUUID.
 function generateCaseID(specialty) {
   const prefix = specialty === 'cardio' ? 'CAR' : 'FET';
   const now = new Date();
@@ -3871,8 +5217,23 @@ function generateCaseID(specialty) {
   const dd = String(now.getDate()).padStart(2,'0');
   const hh = String(now.getHours()).padStart(2,'0');
   const mi = String(now.getMinutes()).padStart(2,'0');
-  // Sequence: use last 3 digits of timestamp for uniqueness
-  const seq = String(now.getTime()).slice(-3);
+  // Sequência: 6 caracteres aleatórios criptograficamente seguros
+  // (UUID v4 → primeiros 6 hex chars → ~16M combinações por minuto)
+  let seq;
+  try {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+      seq = window.crypto.randomUUID().replace(/-/g, '').slice(0, 6).toUpperCase();
+    } else if (window.crypto && window.crypto.getRandomValues) {
+      const arr = new Uint8Array(3);
+      window.crypto.getRandomValues(arr);
+      seq = Array.from(arr).map(b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
+    } else {
+      // Fallback final (browsers muito antigos)
+      seq = Math.random().toString(36).slice(2, 8).toUpperCase();
+    }
+  } catch (e) {
+    seq = Math.random().toString(36).slice(2, 8).toUpperCase();
+  }
   return `${prefix}-${yy}${mm}${dd}-${hh}${mi}-${seq}`;
 }
 
@@ -3960,6 +5321,26 @@ function buildWAMessage(specialty) {
     const carioStr = gc('cCario') !== 'Nao' ? `Cariótipo: ${gc('cCario')}${gc('cCarioVal')!=='—'?' → '+gc('cCarioVal'):''}. ` : '';
     const ritmoStr = `Ritmo: ${gc('cRitmo')}${gc('cFC')!=='—'?' ('+gc('cFC')+' bpm)':''}`;
 
+    // v2: Indicação conforme Diretriz 2019
+    const cIndCat = gc('cIndicacaoCategoria');
+    const cIndIdx = gc('cIndicacaoEspecifica');
+    const cIndClasse = gc('cIndicacaoClasse');
+    const cIndNivel = gc('cIndicacaoNivel');
+    let indicacaoBlock = '';
+    if (cIndCat && cIndCat !== '—' && cIndIdx && cIndIdx !== '—') {
+      const opt = (DIRETRIZ_CARDIO_2019[cIndCat] || []).find(o => o.idx === cIndIdx);
+      if (opt) {
+        indicacaoBlock = `\n📋 *INDICAÇÃO — Diretriz Brasileira 2019*\n• Categoria: ${cIndCat}\n• Indicação: ${opt.label}\n• Classe ${opt.classe} · Nível ${opt.nivel}`;
+        // Adiciona detalhe se houver
+        const det = gc('cDetalheArritmia') !== '—' ? gc('cDetalheArritmia')
+                  : gc('cDetalheMalformacao') !== '—' ? gc('cDetalheMalformacao')
+                  : gc('cDetalheCariotipo') !== '—' ? gc('cDetalheCariotipo')
+                  : gc('cDetalheTeratogeno') !== '—' ? gc('cDetalheTeratogeno')
+                  : gc('cDetalheInfeccao') !== '—' ? gc('cDetalheInfeccao') : null;
+        if (det) indicacaoBlock += `\n• Detalhe: ${det}`;
+      }
+    }
+
     return `${urgenciaCardio === 'urgente' ? '🔴 URGENTE — CARDIOLOGIA FETAL\n\n' : ''}❤️ *PRÉ-TRIAGEM INTELIGENTE — CARDIOLOGIA FETAL*
 ╔══════════════════════════╗
 ║  Maternidade Darcy Vargas  ║
@@ -3972,7 +5353,7 @@ function buildWAMessage(specialty) {
 *Resumo imediato*
 • Prioridade: ${urgStr}
 • IG: ${igStr} | Município: ${pacCidade}
-• Motivo: ${gc('cMotivo') !== '—' ? gc('cMotivo').substring(0,80) : 'Ver dados clínicos'}
+• Motivo: ${gc('cMotivoPrincipal') !== '—' ? gc('cMotivoPrincipal').substring(0,80) : 'Ver dados clínicos'}
 
 👤 *PACIENTE*
 • ID: ${pacIniciais} | Idade: ${pacIdade}
@@ -3987,9 +5368,9 @@ function buildWAMessage(specialty) {
 • IG: ${igStr} | DPP: ${g('gestDPP')}
 • G${g('obsG')} P${g('obsP')} A${g('obsA')} | ${g('gestTipo')}
 • Comorbidades: ${getChk('comorb')}
+${indicacaoBlock}
 
 ❤️ *CARDIOLOGIA FETAL*
-• Motivo: ${gc('cMotivo')}
 • ${ecoSummary}
 • ${ritmoStr}
 • Doppler AU: ${gc('cDopUA')} | ACM: ${gc('cDopACM')}
@@ -3999,8 +5380,8 @@ ${niptStr || carioStr ? '🧬 ' + niptStr + carioStr : ''}
 ${alertasDescricao !== '—' ? '• Detalhes: ' + alertasDescricao : ''}
 
 📋 *CLASSIFICAÇÃO INICIAL DE PRIORIDADE:* ${urgStr}
-${gc('cHistoriaClinica') !== '—' && gc('cHistoriaClinica') ? '📝 *HISTÓRIA CLÍNICA*\n• ' + gc('cHistoriaClinica') + '\n' : ''}• ${gc('cMotivoPrincipal')}
-• Documentos: ${getDocs('cDocList')}
+${gc('cHistoriaClinica') !== '—' && gc('cHistoriaClinica') ? '📝 *HISTÓRIA CLÍNICA*\n• ' + gc('cHistoriaClinica') + '\n' : ''}• Motivo: ${gc('cMotivoPrincipal')}
+${gc('cMotivo') !== '—' ? '• Detalhes: ' + gc('cMotivo') + '\n' : ''}• Documentos: ${getDocs('cDocList')}
 
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
 _Caso ID: ${caseID}_
@@ -4102,22 +5483,51 @@ function showCaseID(specialty) {
 const WA_MSG_LIMIT = 3800;
 
 // ── FIX E: Confirmação pós-envio ─────────────────────────────
+// v5: Auto-limpeza LGPD — em estação compartilhada de plantão, dados sensíveis
+// não podem ficar no sessionStorage indefinidamente. Após envio, dispara timer
+// de limpeza automática (15min default). Cancelado se usuário escolher "manter dados"
+// ou iniciar novo caso (resetState já limpa).
+let _autoCleanupTimer = null;
+const AUTO_CLEANUP_MS = 15 * 60 * 1000; // 15 minutos
+
+function scheduleAutoCleanup() {
+  if (_autoCleanupTimer) clearTimeout(_autoCleanupTimer);
+  _autoCleanupTimer = setTimeout(() => {
+    try {
+      performCleanup();
+      showToast('🔒 Dados limpos automaticamente (LGPD — proteção em estação compartilhada)', { type: 'success', duration: 5000 });
+    } catch(e) {}
+    _autoCleanupTimer = null;
+  }, AUTO_CLEANUP_MS);
+}
+
+function cancelAutoCleanup() {
+  if (_autoCleanupTimer) {
+    clearTimeout(_autoCleanupTimer);
+    _autoCleanupTimer = null;
+  }
+}
+
 function showSentConfirmation(caseID) {
   _lastSentCaseID = caseID;
   const lbl = document.getElementById('sentCaseLabel');
   if (lbl) lbl.textContent = 'ID: ' + caseID;
   document.getElementById('sentConfirmation').classList.add('show');
+  // v5: agenda auto-limpeza após envio bem-sucedido
+  scheduleAutoCleanup();
 }
 
 function closeSentConfirmation(startNew) {
   document.getElementById('sentConfirmation').classList.remove('show');
   if (startNew) {
     // Limpar e ir para seleção de especialidade
+    cancelAutoCleanup(); // resetState já limpa, não precisa de timer pendente
     resetState();
     updateProgressMulti();
     navTo('form');
   }
   // "Manter dados": apenas fecha o overlay — o usuário volta ao resultado
+  // O timer de auto-limpeza continua rodando em background como rede de segurança
 }
 // ─────────────────────────────────────────────────────────────
 
@@ -4134,6 +5544,9 @@ function sanitizeWAMsg(msg) {
 }
 
 // ── Registro na planilha Google Sheets ──────────────────────
+// FIX CRÍTICO v2 (Mbula 2026-05): IDs anteriores estavam todos errados
+// (gestDum→gestDUM, solNome→medNome, motivoFetal→motivoEnc, etc.)
+// Com mode:'no-cors' a falha era silenciosa — planilha recebia "—" em tudo.
 function registrarNaPlanilha(specialty) {
   if (!CONFIG.sheetsUrl) return; // URL não configurada — silencioso
 
@@ -4141,21 +5554,116 @@ function registrarNaPlanilha(specialty) {
     var urg = specialty === 'cardio' ? urgenciaCardio : urgencia;
     var urgLabel = urg === 'eletivo' ? 'Eletivo' : urg === 'prioritario' ? 'Prioritário' : 'Urgente';
 
+    // Helpers locais para evitar dependência de g() não estar carregado
+    var gv = function(id) {
+      var el = document.getElementById(id);
+      return el ? (el.value || '') : '';
+    };
+    var gChk = function(gid) {
+      var its = document.querySelectorAll('#' + gid + ' .check-item.checked input');
+      return Array.from(its).map(function(i){ return i.value; }).join('; ');
+    };
+
     var payload = {
-      caseId:    currentCaseID || '—',
+      // ── Identificação do caso ──
+      caseId:    currentCaseID || '',
+      timestamp: new Date().toISOString(),
       specialty: specialty === 'cardio' ? 'Cardiologia Fetal' : 'Medicina Fetal',
       urgency:   urgLabel,
-      paciente:  g('gestNome'),
-      cidade:    g('gestCidade'),
-      igSem:     g('igSem'),
-      dum:       g('gestDum'),
-      dpp:       g('gestDpp'),
-      medico:    g('solNome'),
-      crm:       g('solCRM'),
-      hospital:  g('solHosp'),
-      telefone:  g('solTel'),
-      motivo:    specialty === 'cardio' ? g('cMotivo') : g('motivoFetal'),
-      obs:       specialty === 'cardio' ? g('cObs') : g('obsGerais')
+
+      // ── Gestante ── (IDs CORRIGIDOS)
+      pacienteNome: gv('gestNome'),
+      pacienteIdade: gv('gestIdade'),
+      pacienteCidade: gv('gestCidade'),
+      pacienteSUS: gv('gestSUS'),
+      pacienteTelefone: gv('gestTel'),
+
+      // ── Solicitante ── (IDs CORRIGIDOS: med* não sol*)
+      medicoNome: gv('medNome'),
+      medicoCategoria: gv('medCategoria'),
+      medicoCRM: gv('medCRM'),
+      medicoEstado: gv('medEstado'),
+      medicoEspecialidade: gv('medEsp'),
+      medicoServico: gv('medServico'),  // não 'solHosp'
+      medicoTelefone: gv('medTel'),
+
+      // ── Obstétrico ── (IDs CORRIGIDOS: maiúsculas DUM/DPP)
+      igSem: gv('igSem'),
+      igDias: gv('igDias'),
+      dum: gv('gestDUM'),
+      dpp: gv('gestDPP'),
+      datacao: gv('gestDatacao'),
+      gpa: 'G' + gv('obsG') + 'P' + gv('obsP') + 'A' + gv('obsA'),
+      gestacaoTipo: gv('gestTipo'),
+      comorbidades: gChk('comorb'),
+      historicoFamiliar: gv('histFamiliar'),
+
+      // ── Motivos e observações ── (IDs CORRIGIDOS)
+      motivo: specialty === 'cardio' ? gv('cMotivoPrincipal') : gv('motivoEnc'),
+      historiaClinica: specialty === 'cardio' ? gv('cHistoriaClinica') : gv('historiaClinica'),
+      observacoes: specialty === 'cardio' ? gv('cObs') : gv('obsAdic'),
+
+      // ── Específicos por especialidade ──
+      ...(specialty === 'cardio' ? {
+        cardioMotivoTriagem: gv('cMotivo'),
+        // v5: campos da Diretriz 2019 que faltavam — granularidade analítica essencial
+        cardioIndicacaoCategoria: gv('cIndicacaoCategoria'),       // Fetal/Materna/Familiar/Negativa
+        cardioIndicacaoEspecifica: gv('cIndicacaoEspecifica'),    // F1, F2, M1... (índice da indicação)
+        cardioIndicacaoLabel: (function(){                          // Texto humano da indicação
+          try {
+            var cat = gv('cIndicacaoCategoria');
+            var idx = gv('cIndicacaoEspecifica');
+            if (typeof DIRETRIZ_CARDIO_2019 !== 'undefined' && cat && idx) {
+              var opt = (DIRETRIZ_CARDIO_2019[cat] || []).find(function(o){ return o.idx === idx; });
+              return opt ? opt.label : '';
+            }
+          } catch(e){}
+          return '';
+        })(),
+        cardioIndicacaoClasse: gv('cIndicacaoClasse'),
+        cardioIndicacaoNivel: gv('cIndicacaoNivel'),
+        cardioDetalheArritmia: gv('cDetalheArritmia'),
+        cardioDetalheMalformacao: gv('cDetalheMalformacao'),
+        cardioDetalheCariotipo: gv('cDetalheCariotipo'),
+        cardioDetalheTeratogeno: gv('cDetalheTeratogeno'),
+        cardioDetalheInfeccao: gv('cDetalheInfeccao'),
+        ecoFeito: gv('cEcoFeito'),
+        ecoResultado: gv('cEcoResultado'),
+        ecoAchados: gChk('cEcoAchados'),
+        hipoteseDiagnostica: gv('cHipotese'),
+        ritmoCardiaco: gv('cRitmo'),
+        fcFetal: gv('cFC'),
+        nipt: gv('cNipt'),
+        niptValor: gv('cNiptVal'),
+        cariotipo: gv('cCario'),
+        cariotipoValor: gv('cCarioVal'),
+        alertasAtuais: gChk('alertasAtuaisC')
+      } : {
+        rastreioRealizado: gv('rastreioRealizou'),
+        tn: gv('tn'),
+        tnMom: gv('tnMom'),
+        ossoNasal: gv('oNasal'),
+        ductusVenoso: gv('ductusVen'),
+        regurgTricuspide: gv('regurgTri'),
+        ipUterinas: gv('ipUterinas'),
+        pappA: gv('pappA'),
+        bhcg: gv('bhcg'),
+        riscoT21: gv('riscoT21'),
+        riscoT18: gv('riscoT18'),
+        riscoT13: gv('riscoT13'),
+        riscoPE: gv('riscoPE'),
+        ecoMorfologico: gv('ecoResultado'),
+        sistemasAcometidos: gChk('sistemas'),
+        suspeitaDiagnostica: gv('ecoDiag'),
+        crescimentoFetal: gv('crescFetal'),
+        liquidoAmniotico: gv('liquidoAmn'),
+        cardioSuspeita: gv('cardioSuspeita'),
+        nipt: gv('nipt'),
+        niptResultado: gv('niptRes'),
+        cariotipo: gv('cariotipo'),
+        cariotipoResultado: gv('carioRes'),
+        alertasAtuais: gChk('alertasAtuais')
+      })
     };
 
     // Envio assíncrono — não bloqueia o WhatsApp se falhar
@@ -4170,20 +5678,277 @@ function registrarNaPlanilha(specialty) {
 
   } catch(e) {
     // Nunca bloquear o fluxo principal
+    console.warn('registrarNaPlanilha falhou (não crítico):', e);
   }
 }
 
+// ── v5.1: Fluxo OBRIGATÓRIO de duas mensagens WhatsApp ──
+// Razão arquitetônica: o bloco IA (prompt + JSON) frequentemente excede o limite
+// de URL do wa.me (~4096 chars encoded). Tentar caber tudo numa mensagem causa
+// truncamento ou perda do bloco IA. Solução: SEMPRE duas mensagens em sequência,
+// com aviso forte e fluxo guiado para o solicitante.
+//
+// Mensagem 1: "📋 1/2 — RESUMO CLÍNICO" (dados identificáveis, médico-médico)
+// Mensagem 2: "🤖 2/2 — BLOCO IA" (anonimizado para o Gemini)
+//
+// Estado persistido em sessionStorage para sobreviver à troca de aba (WhatsApp
+// abre em nova aba/app no mobile, e o solicitante volta para enviar a 2ª).
+
+const PENDING_MSG2_KEY = 'mdv_pending_msg2';
+
 function openWA(specialty) {
-  const rawMsg = buildWAMessage(specialty);
-  const { msg, truncated } = sanitizeWAMsg(rawMsg);
-  if (truncated) {
-    showToast('⚠️ Mensagem grande — dados completos nos documentos PDF');
-  }
-  // Registrar na planilha Google Sheets (assíncrono, silencioso)
+  // Constrói as duas mensagens
+  const clinicalMsg = buildWAClinicalMessage(specialty);
+  const gemMsg = buildWAGemMessage(specialty);
+
+  // Persistir mensagem 2 + metadata para retomada após o solicitante voltar do WA
+  try {
+    sessionStorage.setItem(PENDING_MSG2_KEY, JSON.stringify({
+      msg: gemMsg,
+      caseID: currentCaseID || '',
+      specialty: specialty,
+      timestamp: Date.now()
+    }));
+  } catch(e) {}
+
+  // Registrar na planilha (assíncrono, uma vez só, antes do envio)
   registrarNaPlanilha(specialty);
+
+  // Abrir modal de aviso ANTES de qualquer abertura de WhatsApp
+  showTwoStepWarningModal(specialty, clinicalMsg, gemMsg);
+}
+
+// ── Modal de aviso forte sobre as duas mensagens obrigatórias ──
+function showTwoStepWarningModal(specialty, clinicalMsg, gemMsg) {
+  // Remove modal anterior se existir
+  const existing = document.getElementById('twoStepModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'twoStepModal';
+  modal.className = 'two-step-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-labelledby', 'twoStepTitle');
+  modal.innerHTML = `
+    <div class="two-step-card">
+      <div class="two-step-icon">⚠️</div>
+      <h2 id="twoStepTitle">Envio em 2 mensagens obrigatórias</h2>
+      <p class="two-step-lead">
+        Para que o especialista da MDV tenha acesso à <strong>análise por IA</strong>,
+        você precisa enviar <strong>DUAS mensagens em sequência</strong> pelo WhatsApp.
+      </p>
+      <div class="two-step-list">
+        <div class="two-step-item">
+          <div class="ts-num">1</div>
+          <div class="ts-body">
+            <div class="ts-title">📋 Resumo clínico do caso</div>
+            <div class="ts-desc">Dados completos do encaminhamento (identificável, médico-médico)</div>
+          </div>
+        </div>
+        <div class="two-step-arrow">↓</div>
+        <div class="two-step-item">
+          <div class="ts-num">2</div>
+          <div class="ts-body">
+            <div class="ts-title">🤖 Bloco anonimizado para Gemini</div>
+            <div class="ts-desc">Texto pronto para o especialista colar na IA (sem dados pessoais)</div>
+          </div>
+        </div>
+      </div>
+      <div class="two-step-warn">
+        <strong>Importante:</strong> não feche o app entre as mensagens.
+        Após enviar a 1ª, você voltará automaticamente para esta tela para enviar a 2ª.
+      </div>
+      <div class="two-step-actions">
+        <button class="btn btn-outline" onclick="cancelTwoStepFlow()">Cancelar</button>
+        <button class="btn btn-primary two-step-go" onclick="executeStep1Send()">
+          Entendi, enviar 1ª mensagem →
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  // Trigger animação de entrada
+  void modal.offsetWidth;
+  modal.classList.add('show');
+}
+
+function cancelTwoStepFlow() {
+  const modal = document.getElementById('twoStepModal');
+  if (modal) modal.remove();
+  try { sessionStorage.removeItem(PENDING_MSG2_KEY); } catch(e) {}
+  showToast('Envio cancelado', { type: 'info' });
+}
+
+function executeStep1Send() {
+  const pending = getPendingMsg2();
+  if (!pending) {
+    showToast('❌ Erro ao recuperar mensagem 1 — tente novamente', { type: 'error' });
+    return;
+  }
+  // Reconstrói mensagem 1
+  const clinicalMsg = buildWAClinicalMessage(pending.specialty);
+  // Sanitização — mensagem 1 sozinha geralmente cabe, mas protege de extremos
+  const { msg, truncated } = sanitizeWAMsg(clinicalMsg);
+  if (truncated) {
+    showToast('⚠️ Resumo grande — anexar PDFs com dados completos', { type: 'warn' });
+  }
+  // Marca que a 1ª foi disparada (para retomada se app fechar)
+  try {
+    const p = JSON.parse(sessionStorage.getItem(PENDING_MSG2_KEY) || '{}');
+    p.step1Sent = true;
+    sessionStorage.setItem(PENDING_MSG2_KEY, JSON.stringify(p));
+  } catch(e) {}
+  // Fecha modal e abre WhatsApp
+  const modal = document.getElementById('twoStepModal');
+  if (modal) modal.remove();
   window.open('https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
-  // FIX E: aguardar o usuário voltar ao app (~1.5s) e mostrar confirmação
-  setTimeout(() => showSentConfirmation(currentCaseID || '—'), 1500);
+  // Abre overlay aguardando volta para enviar a 2ª
+  setTimeout(showStep2Reminder, 800);
+}
+
+// ── Overlay de retorno: chama o solicitante para enviar a 2ª mensagem ──
+function showStep2Reminder() {
+  const existing = document.getElementById('step2Reminder');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'step2Reminder';
+  overlay.className = 'step2-reminder';
+  overlay.setAttribute('role', 'alert');
+  overlay.setAttribute('aria-live', 'assertive');
+  overlay.innerHTML = `
+    <div class="s2r-card">
+      <div class="s2r-progress">
+        <span class="s2r-step s2r-step-done">1 ✓</span>
+        <span class="s2r-line"></span>
+        <span class="s2r-step s2r-step-active">2</span>
+      </div>
+      <div class="s2r-title">📤 Falta a 2ª mensagem!</div>
+      <p class="s2r-text">
+        A <strong>1ª mensagem (Resumo Clínico)</strong> foi enviada.<br>
+        Agora envie a <strong>2ª mensagem (Bloco IA Anonimizado)</strong> para que o especialista possa analisar com Gemini.
+      </p>
+      <button class="btn btn-primary s2r-go" onclick="executeStep2Send()">
+        🤖 Enviar 2ª mensagem — Bloco IA →
+      </button>
+      <button class="btn-link s2r-skip" onclick="skipStep2()">Pular bloco IA (não recomendado)</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  void overlay.offsetWidth;
+  overlay.classList.add('show');
+}
+
+function executeStep2Send() {
+  const pending = getPendingMsg2();
+  if (!pending || !pending.msg) {
+    showToast('❌ Bloco IA expirou — gere o caso novamente', { type: 'error' });
+    closeStep2Reminder();
+    return;
+  }
+  // Sanitização defensiva — mas como a mensagem 2 é só o bloco IA, ela cabe
+  // (o bloco IA puro tem ~3000-3500 chars, dentro do limite de 3800)
+  const { msg, truncated } = sanitizeWAMsg(pending.msg);
+  if (truncated) {
+    showToast('⚠️ Bloco IA muito grande — texto truncado, copie pelo botão Gemini do app', { type: 'warn', duration: 5000 });
+  }
+  // Limpa pending
+  try { sessionStorage.removeItem(PENDING_MSG2_KEY); } catch(e) {}
+  closeStep2Reminder();
+  window.open('https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+  // Confirmação final
+  setTimeout(() => showSentConfirmation(pending.caseID || currentCaseID || '—'), 1500);
+}
+
+function skipStep2() {
+  if (!confirm('Tem certeza? Sem a 2ª mensagem, o especialista não terá o bloco anonimizado para o Gemini.')) return;
+  try { sessionStorage.removeItem(PENDING_MSG2_KEY); } catch(e) {}
+  closeStep2Reminder();
+  showToast('⚠️ Bloco IA não enviado — disponível no botão "Copiar para Gemini" se precisar', { type: 'warn', duration: 4000 });
+  setTimeout(() => showSentConfirmation(currentCaseID || '—'), 800);
+}
+
+function closeStep2Reminder() {
+  const overlay = document.getElementById('step2Reminder');
+  if (overlay) overlay.remove();
+}
+
+function getPendingMsg2() {
+  try {
+    return JSON.parse(sessionStorage.getItem(PENDING_MSG2_KEY) || 'null');
+  } catch(e) { return null; }
+}
+
+// ── Verifica ao carregar a página se há um envio incompleto (msg 1 enviada, msg 2 pendente) ──
+function checkPendingStep2OnLoad() {
+  const pending = getPendingMsg2();
+  if (pending && pending.step1Sent && pending.msg) {
+    // Banner persistente avisa o solicitante que falta enviar
+    const banner = document.createElement('div');
+    banner.id = 'pendingStep2Banner';
+    banner.className = 'pending-step2-banner';
+    banner.setAttribute('role', 'alert');
+    banner.innerHTML = `
+      <span class="ps2-icon">⚠️</span>
+      <span class="ps2-text">Você ainda não enviou a <strong>2ª mensagem (Bloco IA)</strong> do caso anterior.</span>
+      <button class="ps2-btn" onclick="resumeStep2()">Enviar agora</button>
+      <button class="ps2-close" onclick="dismissPendingBanner()" aria-label="Dispensar">✕</button>
+    `;
+    document.body.appendChild(banner);
+    setTimeout(() => banner.classList.add('show'), 100);
+  }
+}
+
+function resumeStep2() {
+  dismissPendingBanner();
+  showStep2Reminder();
+}
+
+function dismissPendingBanner() {
+  const b = document.getElementById('pendingStep2Banner');
+  if (b) b.remove();
+}
+
+// Roda na inicialização
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', checkPendingStep2OnLoad);
+} else {
+  setTimeout(checkPendingStep2OnLoad, 500);
+}
+
+// ── v5.1: Construtores de mensagens (separados resumo clínico + bloco IA) ──
+
+// Mensagem 1: resumo clínico (dados identificáveis, médico-médico)
+function buildWAClinicalMessage(specialty) {
+  const base = buildWAMessage(specialty); // usa a função existente
+  const header = '📋 *1/2 — RESUMO CLÍNICO*\n' +
+                 '_⏳ Aguarde a 2ª mensagem (Bloco IA)_\n' +
+                 '━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  const footer = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+                 '⏭ *PRÓXIMA MENSAGEM:* Bloco IA anonimizado para Gemini';
+  return header + base + footer;
+}
+
+// Mensagem 2: bloco IA anonimizado (sem PII, para o especialista colar no Gemini)
+function buildWAGemMessage(specialty) {
+  let gemPrompt = '';
+  try {
+    // v5.1: usa versão COMPACTA para caber na URL do wa.me (~4kb encoded)
+    // O bloco completo continua disponível pelo botão "Copiar para Gemini" no app.
+    gemPrompt = buildGEMPromptCompact(specialty);
+  } catch (e) {
+    console.warn('Falha ao gerar bloco Gemini:', e);
+    return '🤖 *2/2 — BLOCO IA*\n\n❌ Erro ao gerar bloco IA. Use o botão "Copiar para Gemini" no app.';
+  }
+  const caseID = currentCaseID || '—';
+  return '🤖 *2/2 — BLOCO IA (anonimizado)*\n' +
+         '_Caso ID: ' + caseID + ' — continuação da mensagem anterior_\n' +
+         '━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+         '⚠️ *LGPD:* Bloco *anonimizado* (sem nome, cidade, datas).\n' +
+         '✅ *Copie de "▼▼▼" até "▲▲▲"* e cole no GEM Gemini.\n\n' +
+         '▼▼▼ INÍCIO ▼▼▼\n\n' +
+         gemPrompt + '\n\n' +
+         '▲▲▲ FIM ▲▲▲';
 }
 
 function enviarWhatsApp() {
@@ -4703,12 +6468,12 @@ openWA = function(specialty) {
 
 
 <script>
-// FULLSCREEN FIX: remover alturas inline residuais sem quebrar min-height
+// FULLSCREEN FIX: remover alturas inline residuais
 window.addEventListener('load', function() {
   document.documentElement.style.removeProperty('height');
   document.body.style.removeProperty('height');
   var w = document.getElementById('outerWrap');
-  if (w) { w.style.removeProperty('height'); }
+  if (w) { w.style.removeProperty('height'); w.style.removeProperty('min-height'); }
 }, { once: true });
 </script>
 </body>
