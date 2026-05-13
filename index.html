@@ -1269,73 +1269,9 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
   .ref-table .al{color:#e74c3c;font-weight:700}
   .ref-table .wn{color:#f39c12;font-weight:700}
 
-  /* ── Print button ── */
+  /* ── Print ── */
   .btn-print{display:flex;align-items:center;gap:6px;justify-content:center;background:#fff;border:1.5px solid var(--purple);color:var(--purple);border-radius:var(--r-md);padding:11px 20px;font-weight:700;font-size:.85rem;cursor:pointer;width:100%;transition:background .15s;margin-top:8px}
   .btn-print:hover{background:var(--purple-bg)}
-
-  /* ── PRINT MODE (PATCH B): ativado via classe .print-mode no body ── */
-  /* Garante que mesmo em iframe sem suporte a window.open, a impressão
-     da tela atual saia limpa. As regras de @media print abaixo cuidam
-     da impressão real; aqui replicamos as essenciais para que o usuário
-     veja a visualização correta antes de imprimir. */
-  body.print-mode .sidebar,
-  body.print-mode .bottom-nav,
-  body.print-mode .disclaimer-banner,
-  body.print-mode .splash,
-  body.print-mode .sending-overlay,
-  body.print-mode .sent-confirmation,
-  body.print-mode .step2-reminder,
-  body.print-mode .pending-step2-banner,
-  body.print-mode .toast,
-  body.print-mode .tooltip-popup,
-  body.print-mode .tooltip-overlay,
-  body.print-mode .restore-banner,
-  body.print-mode .btn-whatsapp,
-  body.print-mode .btn-outline,
-  body.print-mode .btn-print,
-  body.print-mode .btn-back,
-  body.print-mode .progress-row,
-  body.print-mode .step-label,
-  body.print-mode .urgency-alert-box .ua-btn,
-  body.print-mode .wa-config-card,
-  body.print-mode .urgency-alert-container button {
-    display: none !important;
-  }
-  body.print-mode {
-    background: #fff !important;
-  }
-  body.print-mode .app {
-    max-width: 100% !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    background: #fff !important;
-  }
-  body.print-mode #outerWrap {
-    display: block !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #fff !important;
-  }
-  body.print-mode .screen {
-    display: block !important;
-    padding: 12mm 10mm !important;
-  }
-  body.print-mode .screen:not(.active) {
-    display: none !important;
-  }
-  body.print-mode .result-hero,
-  body.print-mode .urg-banner,
-  body.print-mode .preview-chip {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  body.print-mode .preview-section {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  /* Print: garante saída limpa */
   @media print{
     body{background:#fff !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .sidebar,.bottom-nav,.back-btn,.btn-whatsapp,.btn-outline,.btn-print,
@@ -3589,44 +3525,41 @@ function toggleRegistroProf() {
   }
 }
 
-// ── Impressão: usa window.print() direto + classe .print-mode ──
-// Sandbox do iframe do Google Sites bloqueia window.open() para nova janela.
-// Solução: aplicar classe no body para esconder UI e chamar print() diretamente.
-// O CSS body.print-mode + @media print cuidam da formatação final.
+// ── Impressão: abre nova janela para contornar bloqueio do iframe ──
 function mdvPrint() {
-  const body = document.body;
-  const activeScreen = document.querySelector('.screen.active');
-
-  if (!activeScreen) {
-    showToast('⚠️ Nenhum conteúdo para imprimir', { type: 'warn' });
-    return;
-  }
-
-  // Salva o título original e ajusta para o nome do PDF
-  const tituloOriginal = document.title;
-  const caseLabel = document.getElementById('caseIDBadge');
-  const m = caseLabel ? caseLabel.textContent.match(/[A-Z]{3}-[0-9A-Z\-]+/) : null;
-  const caseId = m ? m[0] : 'MDV';
-  document.title = 'MDV-PreTriagem-' + caseId;
-
-  body.classList.add('print-mode');
-
-  // Pequeno delay para o navegador aplicar os estilos antes de imprimir.
-  // Sem isso, em alguns mobiles o print sai com o CSS antigo.
-  setTimeout(() => {
-    try {
-      window.print();
-    } catch (err) {
-      console.warn('window.print() falhou:', err);
-      showToast('⚠️ Não foi possível abrir o diálogo de impressão. Use Ctrl+P (ou Cmd+P)', { type: 'warn', duration: 4500 });
-    } finally {
-      // Restaura o estado após o diálogo de impressão fechar
-      setTimeout(() => {
-        body.classList.remove('print-mode');
-        document.title = tituloOriginal;
-      }, 800);
-    }
-  }, 100);
+  var activeScreen = document.querySelector('.screen.active');
+  if (!activeScreen) { return; }
+  var styles = '';
+  var styleEls = document.querySelectorAll('style');
+  styleEls.forEach(function(s) { styles += s.innerHTML; });
+  var printWin = window.open('', '_blank', 'width=900,height=700');
+  if (!printWin) { return; }
+  var caseLabel = document.getElementById('sentCaseLabel');
+  var caseText = caseLabel ? caseLabel.textContent : '';
+  printWin.document.write(
+    '<!DOCTYPE html><html lang="pt-BR"><head>' +
+    '<meta charset="UTF-8">' +
+    '<title>MDV — Pré-Triagem — ' + caseText + '<\/title>' +
+    '<style>' + styles + '<\/style>' +
+    '<style>' +
+    'body{background:#fff!important;margin:0;padding:20px}' +
+    '.sidebar,.bottom-nav,.btn-whatsapp,.btn-outline,.btn-print,.btn-back,' +
+    '.progress-row,.step-label,.sending-overlay,.sent-confirmation,.toast,' +
+    '.splash,.disclaimer-banner,.restore-banner,.urgency-alert-box .ua-btn,' +
+    '.ref-toggle,.spec-indicator,.field-validation{display:none!important}' +
+    '.app{max-width:100%!important;box-shadow:none!important;padding:0!important}' +
+    '#outerWrap{display:block!important;width:100%!important;margin:0!important}' +
+    '.result-hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
+    '@media print{@page{margin:15mm;size:A4}}' +
+    '<\/style>' +
+    '<\/head><body>' +
+    '<div class="app" style="max-width:100%;padding:0">' +
+    activeScreen.innerHTML +
+    '<\/div>' +
+    '<scr' + 'ipt>window.onload=function(){window.print();setTimeout(function(){window.close();},500);};<\/scr' + 'ipt>' +
+    '<\/body><\/html>'
+  );
+  printWin.document.close();
 }
 
 // Fix input scroll-into-view on iOS keyboard open
@@ -5010,113 +4943,21 @@ function buildGEMPrompt(specialty) {
 
   const dadosLimpos = pruneNulls(dadosAnonimizados);
 
-  const especialidade = specialty === 'cardio' ? 'Cardiologia Fetal' : 'Medicina Fetal';
-  const urg = specialty === 'cardio' ? urgenciaCardio : urgencia;
-  const urgLabel = urg === 'urgente' ? 'URGENTE 🔴' : urg === 'prioritario' ? 'PRIORIDADE CLÍNICA 🟡' : 'ELETIVO 🟢';
-  const caseId = currentCaseID || generateCaseID(specialty);
+  const prompt = `Você atua como **médico especialista em ${specialty === 'cardio' ? 'Cardiologia Fetal' : 'Medicina Fetal'}** revisando, em consultório, um caso encaminhado para a Maternidade Darcy Vargas (Joinville–SC, referência estadual SES/SC).
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // PROMPT GEMINI — versão clínica robusta (Mbula 2026-05)
-  //
-  // Estrutura desenhada para:
-  //   1. Calibrar contexto (centro terciário SUS, SES/SC, MDV)
-  //   2. Forçar raciocínio clínico explícito com formato definido
-  //   3. Instruir geração nativa de PDF pelo Gemini Canvas
-  //   4. Reduzir ambiguidade nas seções (formatos rígidos por item)
-  //   5. Pedir reconhecimento de incertezas e limitações
-  //   6. Validar criticamente a urgência atribuída pelo solicitante
-  // ═══════════════════════════════════════════════════════════════════════
-  const prompt = `# Análise Clínica de Caso Encaminhado — ${especialidade}
+Os dados abaixo foram **agressivamente anonimizados** (sem nome, datas absolutas, cidade exata ou identificadores) em conformidade com a LGPD e seguem o padrão da Diretriz Brasileira de Indicação de Ecocardiograma Fetal (2019) quando aplicável.
 
-## Contexto e papel
-Você é **especialista sênior em ${especialidade}** com prática em centro terciário de referência (Maternidade Darcy Vargas, Joinville–SC, referência estadual SES/SC). Você revisa, em modo discussão entre pares, um caso encaminhado para pré-triagem.
+**Sua tarefa:**
 
-## Premissas obrigatórias
-- Os dados abaixo estão **agressivamente anonimizados** em conformidade com a LGPD (sem nome, datas absolutas, cidade exata, identificadores).
-- Sua análise apoia decisão clínica mas **não substitui** avaliação presencial nem regulação SES/SC oficial.
-- Use **evidências brasileiras prioritariamente** (FEBRASGO, SBC/DCC-CP, SBP); recorra a internacionais (ISUOG, AHA, ACOG, AEPC) quando indispensável.
-- Para cada recomendação relevante, cite **ano** e **tipo de evidência** (diretriz, revisão sistemática, coorte, consenso de especialistas).
-- A urgência atribuída pelo solicitante é **${urgLabel}** — avalie criticamente se concorda.${specialty === 'cardio' ? '\n- A **Diretriz Brasileira de Indicação de Ecocardiograma Fetal (2019)** já foi aplicada na classificação Classe/Nível registrada no JSON — referencie-a em seu raciocínio.' : ''}
+1. **Síntese do caso** (3–5 linhas) integrando dados clínicos, obstétricos e exames disponíveis.
+2. **Diagnósticos diferenciais** ordenados por probabilidade, com justificativa clínica de cada um.
+3. **Exames complementares sugeridos** para refinar diagnóstico (USG seriado, ecocardiograma fetal, NIPT, cariótipo via amniocentese/BVC, etc.) com a janela gestacional ideal.
+4. **Plano de seguimento** estruturado: periodicidade de consultas, exames de vigilância, sinais que devem motivar reavaliação imediata.
+5. **Sinais de alarme** específicos para esta paciente — o que a equipe deve monitorar prioritariamente.
+6. **Comunicação para a gestante e família** — pontos-chave a serem transmitidos com linguagem clara e empática.
+7. **Referências** — guideline-based, preferencialmente brasileiras (FEBRASGO, SBC, SBP) ou internacionais relevantes (ISUOG, AHA, AEPC).
 
-## Estrutura obrigatória da resposta (markdown, nesta ordem exata)
-
-### 1. Síntese clínica integrada (4–7 linhas)
-Integre achados maternos, obstétricos e fetais em narrativa fluida. Termine com sua impressão geral em uma frase.
-
-### 2. Avaliação da pertinência do encaminhamento
-- A indicação cumpre critérios formais (Classe I/IIa se Cardio Fetal; critérios FEBRASGO se Medicina Fetal)? **Sim/Não — justifique em 2–3 linhas.**
-- A classificação **${urgLabel}** é apropriada? Mantenha, suba ou desça — **justifique objetivamente**.
-- Existem dados faltantes críticos que impedem decisão segura? Liste.
-
-### 3. Diagnósticos diferenciais (mínimo 3, máximo 6)
-Formato exato para cada item:
-- **[Diagnóstico]** — probabilidade *Alta / Moderada / Baixa* — justificativa em 1–2 linhas integrando achados específicos do caso.
-
-Ordene do mais ao menos provável.
-
-### 4. Exames complementares sugeridos
-Para cada exame proposto:
-- **[Exame]** — janela gestacional ideal — finalidade clínica específica — impacto esperado na conduta.
-
-Priorize do mais ao menos urgente. Não liste exames de rotina já realizados.
-
-### 5. Plano de seguimento estruturado
-- **Periodicidade de consultas** (em semanas, com justificativa)
-- **Vigilância fetal**: parâmetros monitorados, métodos, frequência
-- **Critérios para reavaliação imediata** (gatilhos clínicos objetivos)
-- **Local sugerido do parto** (terciário com UTI Neonatal? cirurgia cardíaca neonatal? UTIN III?)
-- **Antecedência ideal de programação cirúrgica/perinatal** (se aplicável)
-
-### 6. Sinais de alarme específicos deste caso
-Liste **4–7 sinais** que a equipe deve monitorar prioritariamente. Evite genéricos — ancore nos achados do caso atual.
-
-### 7. Comunicação com a gestante e família
-- **Prognóstico em linguagem leiga** (sem jargão; use analogias quando útil)
-- **Principais incertezas** a serem comunicadas com honestidade
-- **Próximos passos práticos** que a família deve esperar (consultas, exames, prazos)
-- **Aspectos emocionais e psicossociais** a considerar (abordagem SPIKES quando indicada)
-
-### 8. Armadilhas e vieses do raciocínio
-Identifique **2–4 pontos** onde clínicos menos experientes podem se confundir neste caso, ou vieses diagnósticos a evitar (ancoragem, disponibilidade, fechamento prematuro, viés do espectro).
-
-### 9. Referências
-Liste **3–6 fontes** no formato:
-- **[Autor / Instituição]**. *Título.* Ano. *[Tipo: Diretriz / RS / Coorte / Opinião]*
-
-### 10. Limitações desta análise
-Reconheça explicitamente:
-- Onde a evidência é fraca ou conflitante
-- Quais dados clínicos faltam para refinamento
-- O que apenas avaliação presencial pode esclarecer
-- Os limites inerentes de análise por IA
-
----
-
-## 📄 GERAÇÃO DE PDF — INSTRUÇÃO TÉCNICA OBRIGATÓRIA
-
-Após concluir as 10 seções acima, **gere um documento PDF** profissionalmente formatado usando os recursos disponíveis (Canvas / artefato / Export). O PDF deve seguir esta estrutura:
-
-**Cabeçalho institucional** (centralizado no topo):
-- **MATERNIDADE DARCY VARGAS**
-- Referência Estadual SES/SC · Joinville–SC
-- *Análise Clínica de Pré-Triagem — ${especialidade}*
-- **Caso (anonimizado): \`${caseId}\`**
-- Data de geração: [data atual]
-- Classificação atribuída: **${urgLabel}**
-
-**Corpo do documento**: as 10 seções acima, com hierarquia visual clara:
-- Títulos de seção destacados (cor roxa #6B3FA0 quando possível)
-- **Negrito** para dados clínicos críticos e diagnósticos principais
-- Listas bem estruturadas com marcadores
-- Espaçamento adequado entre seções para legibilidade
-
-**Rodapé** (em todas as páginas):
-- *"Análise gerada por IA — não substitui avaliação presencial nem regulação SES/SC oficial."*
-- *"MDV — Pré-Triagem Inteligente · LGPD-compliant · Joinville–SC"*
-
-**Nome do arquivo para download**: \`MDV-Analise-${caseId}.pdf\`
-
-**Disponibilize o PDF para download direto ao final da resposta.** Se o ambiente não suportar geração nativa de PDF, exporte como **Google Docs** equivalente mantendo toda a estrutura visual acima e informe o link de download.
+Mantenha o raciocínio clínico transparente, cite evidências quando relevante e indique explicitamente quando a evidência for limitada.
 
 ---
 
@@ -5128,8 +4969,7 @@ ${JSON.stringify(dadosLimpos, null, 2)}
 
 ---
 
-*Caso pseudoanônimo · MDV — Pré-Triagem Inteligente · Joinville–SC · SES/SC.*
-*Use exclusivamente para análise clínica auxiliar; não substitui avaliação presencial.*`;
+*Caso pseudoanônimo gerado pelo sistema MDV — Pré-Triagem Inteligente. Use exclusivamente para análise clínica auxiliar; não substitui avaliação presencial nem a Regulação Estadual oficial.*`;
 
   return prompt;
 }
@@ -5171,27 +5011,16 @@ function buildGEMPromptCompact(specialty) {
   }
 
   const especialidade = specialty === 'cardio' ? 'Cardiologia Fetal' : 'Medicina Fetal';
-  const urg = specialty === 'cardio' ? urgenciaCardio : urgencia;
-  const urgLabel = urg === 'urgente' ? 'URGENTE 🔴' : urg === 'prioritario' ? 'PRIORIDADE 🟡' : 'ELETIVO 🟢';
-  const diretrizNote = specialty === 'cardio'
-    ? ' Diretriz BR 2019 (Eco Fetal) já aplicada — referencie Classe/Nível.'
-    : '';
 
-  return `Especialista sênior em ${especialidade} (MDV/SES-SC). Caso anonimizado LGPD. Urgência: ${urgLabel}.
-
-Análise em markdown, 10 seções:
-1. Síntese (4-7 linhas)
-2. Pertinência do encaminhamento + concorda com urgência? (justifique)
-3. Diferenciais top 3-6: *Dx — prob Alta/Moderada/Baixa — justif*
-4. Exames com janela gestacional ideal
-5. Plano de seguimento (consultas, vigilância, local do parto, programação cirúrgica)
-6. Sinais de alarme específicos do caso
-7. Comunicação leiga à família
-8. Armadilhas/vieses (2-4)
-9. Refs FEBRASGO/SBC/ISUOG/AHA com ano + tipo
-10. Limitações da análise por IA${diretrizNote}
-
-📄 **Ao final, gere PDF profissional**: cabeçalho MDV, caso \`${caseID}\`, classificação ${urgLabel}, 10 seções formatadas (títulos destacados, negrito clínico), rodapé disclaimer LGPD/SES-SC. Disponibilize como \`MDV-Analise-${caseID}.pdf\`. Se não puder PDF nativo, exporte como Google Doc.
+  return `Atue como especialista em ${especialidade} (MDV/SES-SC). Caso anonimizado (LGPD). Forneça em ordem:
+1) Síntese (3-5 linhas)
+2) Diferenciais ordenados por probabilidade
+3) Exames sugeridos com janela gestacional
+4) Plano de seguimento + sinais de alarme
+5) Comunicação à família
+6) Referências (FEBRASGO/SBC/ISUOG/AHA)
+7) Gere um PDF do caso clínico pronto para ser enviado ao médico
+${specialty === 'cardio' ? '\nUse Diretriz Brasileira 2019 de Eco Fetal quando aplicável.' : ''}
 
 CASO (JSON):
 ${dadosJsonStr}`;
@@ -5369,35 +5198,9 @@ function performCleanup() {
 
 
 // ── Admin panel: ?admin=1 apenas ────────────────────────────
-// Sem ?admin=1, esconde a aba Status (analytics são para a equipe MDV, não
-// para quem está preenchendo o encaminhamento) e mantém painéis WA ocultos.
-(function setupAdminVisibility() {
-  const isAdmin = new URLSearchParams(window.location.search).get('admin') === '1';
-
-  if (isAdmin) {
-    // Modo admin: mostrar painéis de configuração WA e manter Status visível
-    document.querySelectorAll('[id^="waAdminPanel"]').forEach(el => el.style.display = 'block');
-  } else {
-    // Modo usuário: ocultar entrada de Status em todos os menus
-    const hideStatus = () => {
-      // Sidebar (desktop) e bottom-nav (mobile)
-      document.querySelectorAll('[data-screen="status"]').forEach(el => {
-        el.style.display = 'none';
-      });
-      // Se estiver atualmente na tela Status, redirecionar para Home
-      const statusScreen = document.getElementById('status');
-      if (statusScreen && statusScreen.classList.contains('active')) {
-        navTo('home');
-      }
-    };
-    // Executa imediatamente e novamente após carregamento completo
-    // (defensive contra elementos renderizados tardiamente)
-    hideStatus();
-    if (document.readyState !== 'complete') {
-      window.addEventListener('load', hideStatus, { once: true });
-    }
-  }
-})();
+if (new URLSearchParams(window.location.search).get('admin') === '1') {
+  document.querySelectorAll('[id^="waAdminPanel"]').forEach(el => el.style.display='block');
+}
 
 
 // ══════════════════════════════════════════════════════════════
@@ -6006,36 +5809,14 @@ function executeStep1Send() {
 }
 
 // ── Overlay de retorno: chama o solicitante para enviar a 2ª mensagem ──
-// IMPORTANTE: usa <a target="_blank"> nativo em vez de window.open() programático.
-// Razão: após a 1ª mensagem, o usuário sai do app (vai pro WhatsApp) e volta —
-// nesse retorno, o user gesture original já expirou. window.open() programático
-// é bloqueado silenciosamente em iOS Safari e Chrome Android. O link <a>
-// nativo, ao ser clicado, é tratado como gesture novo pelo navegador.
 function showStep2Reminder() {
   const existing = document.getElementById('step2Reminder');
   if (existing) existing.remove();
-
-  const pending = getPendingMsg2();
-  if (!pending || !pending.msg) {
-    showToast('❌ Bloco IA expirou — gere o caso novamente', { type: 'error' });
-    return;
-  }
-
-  // Sanitiza e prepara a URL ANTES de renderizar o overlay.
-  // Isso garante que o href esteja pronto no momento exato do clique.
-  const { msg, truncated } = sanitizeWAMsg(pending.msg);
-  const waUrl = 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg);
-
   const overlay = document.createElement('div');
   overlay.id = 'step2Reminder';
   overlay.className = 'step2-reminder';
   overlay.setAttribute('role', 'alert');
   overlay.setAttribute('aria-live', 'assertive');
-
-  const truncWarn = truncated
-    ? '<div style="background:rgba(245,158,11,.12);border-left:3px solid #f59e0b;padding:8px 12px;border-radius:6px;font-size:.74rem;color:#7a4a00;margin:10px 0;text-align:left;line-height:1.4">⚠️ Texto longo — se o WhatsApp não abrir, use o botão "Copiar manualmente" abaixo.</div>'
-    : '';
-
   overlay.innerHTML = `
     <div class="s2r-card">
       <div class="s2r-progress">
@@ -6048,72 +5829,36 @@ function showStep2Reminder() {
         A <strong>1ª mensagem (Resumo Clínico)</strong> foi enviada.<br>
         Agora envie a <strong>2ª mensagem (Bloco IA Anonimizado)</strong> para que o especialista possa analisar com Gemini.
       </p>
-      ${truncWarn}
-      <a id="step2WaLink"
-         href="${waUrl}"
-         target="_blank"
-         rel="noopener noreferrer"
-         class="s2r-go"
-         role="button"
-         style="display:flex;align-items:center;justify-content:center;text-decoration:none;background:linear-gradient(135deg,#1A73E8,#4285F4);color:#fff;padding:14px 18px;font-size:.95rem;font-weight:700;border-radius:14px;box-shadow:0 8px 24px rgba(26,115,232,.4);transition:transform .15s,box-shadow .15s;animation:s2r-go-bob 2.2s ease-in-out infinite">
+      <button class="btn btn-primary s2r-go" onclick="executeStep2Send()">
         🤖 Enviar 2ª mensagem — Bloco IA →
-      </a>
-      <button class="btn-link s2r-copy" onclick="copyStep2Manually()"
-              style="display:block;width:100%;background:rgba(107,63,160,.08);border:1.5px solid rgba(107,63,160,.25);color:var(--purple);font-size:.82rem;text-decoration:none;cursor:pointer;margin-top:10px;padding:11px 14px;border-radius:10px;font-weight:700">
-        📋 Copiar mensagem manualmente (se o botão não abrir)
       </button>
-      <button class="s2r-skip" onclick="skipStep2()">Pular bloco IA (não recomendado)</button>
+      <button class="btn-link s2r-skip" onclick="skipStep2()">Pular bloco IA (não recomendado)</button>
     </div>
   `;
   document.body.appendChild(overlay);
   void overlay.offsetWidth;
   overlay.classList.add('show');
-
-  // Listener: ao clicar no link, agendar confirmação e limpeza após
-  // delay suficiente para o navegador abrir o WhatsApp.
-  // Não chamamos preventDefault — o navegador precisa abrir a URL nativamente
-  // para preservar o user gesture.
-  const link = overlay.querySelector('#step2WaLink');
-  if (link) {
-    link.addEventListener('click', () => {
-      setTimeout(() => {
-        try { sessionStorage.removeItem(PENDING_MSG2_KEY); } catch(e) {}
-        closeStep2Reminder();
-        showSentConfirmation(pending.caseID || currentCaseID || '—');
-      }, 1500);
-    }, { once: true });
-  }
 }
 
-// executeStep2Send: mantido como wrapper de retrocompatibilidade —
-// chamado pelo banner persistente "pending step2" ao recarregar a página
-// e por qualquer fluxo antigo. Apenas (re)abre o reminder com link nativo.
 function executeStep2Send() {
-  showStep2Reminder();
-}
-
-// Fallback: copia a 2ª mensagem para o clipboard quando o link nativo
-// do WhatsApp não abrir (mobile sem app instalado, navegador exótico, etc).
-async function copyStep2Manually() {
   const pending = getPendingMsg2();
   if (!pending || !pending.msg) {
     showToast('❌ Bloco IA expirou — gere o caso novamente', { type: 'error' });
+    closeStep2Reminder();
     return;
   }
-  const { msg } = sanitizeWAMsg(pending.msg);
-  const ok = await copyToClipboard(msg);
-  if (ok) {
-    showToast('✅ Mensagem copiada! Abra o WhatsApp manualmente e cole no chat com o especialista', { type: 'success', duration: 5000 });
-    // Após 4s, considerar enviado e fechar o reminder
-    setTimeout(() => {
-      try { sessionStorage.removeItem(PENDING_MSG2_KEY); } catch(e) {}
-      closeStep2Reminder();
-      showSentConfirmation(pending.caseID || currentCaseID || '—');
-    }, 4000);
-  } else {
-    showToast('❌ Falha ao copiar — selecione manualmente no modal abaixo', { type: 'error' });
-    showCopyModal('2ª Mensagem — Bloco IA Anonimizado', msg);
+  // Sanitização defensiva — mas como a mensagem 2 é só o bloco IA, ela cabe
+  // (o bloco IA puro tem ~3000-3500 chars, dentro do limite de 3800)
+  const { msg, truncated } = sanitizeWAMsg(pending.msg);
+  if (truncated) {
+    showToast('⚠️ Bloco IA muito grande — texto truncado, copie pelo botão Gemini do app', { type: 'warn', duration: 5000 });
   }
+  // Limpa pending
+  try { sessionStorage.removeItem(PENDING_MSG2_KEY); } catch(e) {}
+  closeStep2Reminder();
+  window.open('https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+  // Confirmação final
+  setTimeout(() => showSentConfirmation(pending.caseID || currentCaseID || '—'), 1500);
 }
 
 function skipStep2() {
