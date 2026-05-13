@@ -5594,7 +5594,7 @@ function registrarNaPlanilha(specialty) {
       dum: gv('gestDUM'),
       dpp: gv('gestDPP'),
       datacao: gv('gestDatacao'),
-      gpa: 'G' + gv('obsG') + 'P' + gv('obsP') + 'A' + gv('obsA'),
+      gpa: 'G' + (gv('obsG').trim() || '0') + 'P' + (gv('obsP').trim() || '0') + 'A' + (gv('obsA').trim() || '0'),
       gestacaoTipo: gv('gestTipo'),
       comorbidades: gChk('comorb'),
       historicoFamiliar: gv('histFamiliar'),
