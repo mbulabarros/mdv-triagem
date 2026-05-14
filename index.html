@@ -5667,14 +5667,23 @@ function registrarNaPlanilha(specialty) {
       })
     };
 
-    // Envio assíncrono — não bloqueia o WhatsApp se falhar
+   // Envio assíncrono — não bloqueia o WhatsApp se falhar.
+    // ⚠️ NÃO definir Content-Type: em mode no-cors o browser rejeita silenciosamente
+    // headers não-simple. O Apps Script lê e.postData.contents independente do MIME.
     fetch(CONFIG.sheetsUrl, {
       method: 'POST',
-      mode: 'no-cors', // Google Apps Script exige no-cors
-      headers: { 'Content-Type': 'application/json' },
+      mode: 'no-cors',
+      redirect: 'follow',
       body: JSON.stringify(payload)
-    }).catch(function() {
-      // Falha silenciosa — o envio do WhatsApp não é afetado
+    })
+    .then(function(r) {
+      // mode:no-cors retorna response opaque (type='opaque', status=0) — isso é
+      // ESPERADO e indica sucesso de envio (apenas não conseguimos ler a resposta).
+      console.log('[MDV registrarNaPlanilha] ✓ POST enviado · type:', r.type, '· status:', r.status);
+    })
+    .catch(function(err) {
+      // Agora logamos o erro real em vez de engolir silenciosamente
+      console.error('[MDV registrarNaPlanilha] ✗ Falha no POST:', err);
     });
 
   } catch(e) {
