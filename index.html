@@ -6476,6 +6476,249 @@ window.addEventListener('load', function() {
   var w = document.getElementById('outerWrap');
   if (w) { w.style.removeProperty('height'); w.style.removeProperty('min-height'); }
 }, { once: true });
+// ════════════════════════════════════════════════════════════════════════════
+//  MDV PATCH — Sincronização Frontend ↔ Google Sheets via Apps Script
+//  ─────────────────────────────────────────────────────────────────────────
+//  Cole este bloco INTEIRO no index.html, logo antes do </script> final
+//  (o último </script>, que está depois da função enviarWhatsAppCardio).
+//
+//  NÃO REMOVA NADA do código existente. Este patch é aditivo:
+//   • Estende CONFIG via Object.assign (não redeclara)
+//   • Sobrescreve enviarWhatsApp/enviarWhatsAppCardio via window.* (override)
+//   • Adiciona helpers (gV, gChk, buildGPA, collectPayload, sendToSheet)
+//
+//  Autor: Dr. Mbula Barros · INOVAMED · 2026-05-14
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── 1) Estende CONFIG sem redeclarar (CONFIG é const, mas o objeto é mutável)
+Object.assign(CONFIG, {
+  sheetsUrl: 'https://script.google.com/macros/s/AKfycbzzg9FCTab-TZIGooUcWDkdEC8Bs9uaRzV2Ok-RpA5PT_31rv6o-LmADouKnOlMct9X/exec',
+  sheetsTimeoutMs: 8000
+});
+
+
+// ── 2) Helpers de coleta (versão limpa: '' em vez de '—') ────────────────────
+
+function gV(id) {
+  const el = document.getElementById(id);
+  if (!el) return '';
+  return (el.value || '').trim();
+}
+
+function gChk(groupId) {
+  const items = document.querySelectorAll('#' + groupId + ' .check-item.checked input');
+  return items.length ? Array.from(items).map(i => i.value).join('; ') : '';
+}
+
+function buildGPA() {
+  const G = gV('obsG'), P = gV('obsP'), A = gV('obsA');
+  if (!G && !P && !A) return '';
+  return `G${G || 0}P${P || 0}A${A || 0}`;
+}
+
+
+// ── 3) Monta payload normalizado conforme schema do Code.gs ──────────────────
+
+function collectPayload(specialty) {
+  const caseId = currentCaseID || generateCaseID(specialty);
+  currentCaseID = caseId;
+
+  const urg = specialty === 'cardio' ? urgenciaCardio : urgencia;
+
+  // Núcleo comum (gestante + obstetria + solicitante)
+  const base = {
+    caseId,
+    specialty,
+    urgency: urg,
+
+    // Gestante
+    pacienteNome:     gV('gestNome'),
+    pacienteIdade:    gV('gestIdade'),
+    pacienteCidade:   gV('gestCidade'),
+    pacienteSUS:      gV('gestSUS'),
+    pacienteTelefone: gV('gestTel'),
+
+    // Obstetria
+    igSem:             gV('igSem'),
+    igDias:            gV('igDias'),
+    dum:               gV('gestDUM'),
+    dpp:               gV('gestDPP'),
+    datacao:           gV('gestDatacao'),
+    gpa:               buildGPA(),
+    gestacaoTipo:      gV('gestTipo'),
+    comorbidades:      gChk('comorb'),
+    historicoFamiliar: gV('histFamiliar'),
+
+    // Solicitante
+    medicoNome:          gV('medNome'),
+    medicoCategoria:     '',                  // não há campo no UI atual
+    medicoCRM:           gV('medCRM'),
+    medicoEstado:        gV('medEstado'),
+    medicoEspecialidade: gV('medEsp'),
+    medicoServico:       gV('medServico'),
+    medicoTelefone:      gV('medTel'),
+
+    // Diretriz 2019 (placeholders — campos ainda não existem no UI)
+    cardioIndicacaoCategoria:  '',
+    cardioIndicacaoEspecifica: '',
+    cardioIndicacaoLabel:      '',
+    cardioIndicacaoClasse:     '',
+    cardioIndicacaoNivel:      '',
+    cardioDetalheArritmia:     '',
+    cardioDetalheMalformacao:  '',
+    cardioDetalheCariotipo:    '',
+    cardioDetalheTeratogeno:   '',
+    cardioDetalheInfeccao:     ''
+  };
+
+  // Ramo Cardiologia Fetal
+  if (specialty === 'cardio') {
+    Object.assign(base, {
+      ecoFeito:            gV('cEcoFeito'),
+      ecoResultado:        gV('cEcoResultado'),
+      ecoAchados:          gV('cEcoAchados') + (gV('cEcoDesc') ? ' | ' + gV('cEcoDesc') : ''),
+      hipoteseDiagnostica: gV('cHipotese'),
+      ritmoCardiaco:       gV('cRitmo') + (gV('cRitmoObs') ? ' | ' + gV('cRitmoObs') : ''),
+      fcFetal:             gV('cFC'),
+      nipt:                gV('cNipt'),
+      niptValor:           gV('cNiptVal') || gV('cNiptRes'),
+      cariotipo:           gV('cCario'),
+      cariotipoValor:      gV('cCarioVal') || gV('cCarioRes'),
+
+      motivo:          gV('cMotivoPrincipal') || gV('cMotivo'),
+      historiaClinica: gV('cHistoriaClinica'),
+      observacoes:     gV('cObs'),
+      alertasAtuais:   gChk('alertasAtuaisC') + (gV('alertasDescricaoC') ? ' | ' + gV('alertasDescricaoC') : '')
+    });
+  }
+  // Ramo Medicina Fetal
+  else {
+    Object.assign(base, {
+      // Rastreio 1T
+      rastreioRealizado:  gV('rastreioRealizou'),
+      tn:                 gV('tn'),
+      tnMom:              gV('tnMom'),
+      ossoNasal:          gV('oNasal'),
+      ductusVenoso:       gV('ductusVen'),
+      regurgTricuspide:   gV('regurgTri'),
+      ipUterinas:         gV('ipUterinas') + (gV('ipUterinasP') ? ' (' + gV('ipUterinasP') + ')' : ''),
+      pappA:              gV('pappA'),
+      bhcg:               gV('bhcg'),
+      riscoT21:           gV('riscoT21'),
+      riscoT18:           gV('riscoT18'),
+      riscoT13:           gV('riscoT13'),
+      riscoPE:            gV('riscoPE'),
+
+      // Morfológico
+      ecoMorfologico:      gV('ecoResultado'),
+      sistemasAcometidos:  gChk('sistemas'),
+      suspeitaDiagnostica: gV('ecoDiag'),
+      crescimentoFetal:    gV('crescFetal'),
+      liquidoAmniotico:    gV('liquidoAmn') + (gV('ilaVal') ? ' (' + gV('ilaVal') + ')' : ''),
+      cardioSuspeita:      gV('cardioSuspeita'),
+
+      // Genética
+      nipt:               gV('nipt'),
+      niptResultado:      gV('niptRes'),
+      cariotipo:          gV('cariotipo'),
+      cariotipoResultado: gV('carioRes'),
+
+      // Texto livre
+      motivo:          gV('motivoEnc'),
+      historiaClinica: gV('historiaClinica'),
+      observacoes:     gV('obsAdic'),
+      alertasAtuais:   gChk('alertasAtuais') + (gV('alertasDescricao') ? ' | ' + gV('alertasDescricao') : '')
+    });
+  }
+
+  return base;
+}
+
+
+// ── 4) Envia ao Apps Script ──────────────────────────────────────────────────
+//  • keepalive: true → request sobrevive ao window.open do WhatsApp (mobile-safe)
+//  • Content-Type: text/plain → evita preflight CORS (limitação conhecida do GAS)
+//  • fire-and-forget → nunca bloqueia o fluxo de envio do WhatsApp
+
+async function sendToSheet(payload) {
+  if (!CONFIG.sheetsUrl || /XXXXXXX/.test(CONFIG.sheetsUrl)) {
+    console.warn('[MDV] sheetsUrl não configurado — pulando persistência');
+    return { ok: false, error: 'sheetsUrl não configurado' };
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), CONFIG.sheetsTimeoutMs || 8000);
+
+  try {
+    const res = await fetch(CONFIG.sheetsUrl, {
+      method: 'POST',
+      mode: 'cors',
+      cache: 'no-cache',
+      redirect: 'follow',
+      keepalive: true,
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    const txt = await res.text();
+    let data = {};
+    try { data = JSON.parse(txt); } catch (e) { /* resposta não-JSON, tolerar */ }
+
+    if (data.ok) {
+      console.log('[MDV] ✓ Caso persistido na planilha:', data.caseId);
+      return data;
+    } else {
+      console.warn('[MDV] ⚠ Apps Script retornou erro:', data.error || txt);
+      return { ok: false, error: data.error || 'resposta inesperada' };
+    }
+  } catch (err) {
+    clearTimeout(timeoutId);
+    console.error('[MDV] ✗ Falha no envio à planilha:', err);
+    return { ok: false, error: err.message };
+  }
+}
+
+
+// ── 5) Sobrescreve handlers de envio (via window.* — override garantido) ─────
+
+window.enviarWhatsApp = function () {
+  document.getElementById('sendingOverlay').classList.add('show');
+
+  // Persiste em paralelo. keepalive garante delivery mesmo após window.open
+  try {
+    sendToSheet(collectPayload('fetal'));
+  } catch (e) {
+    console.error('[MDV] collectPayload(fetal) falhou:', e);
+  }
+
+  setTimeout(() => {
+    document.getElementById('sendingOverlay').classList.remove('show');
+    const msg = buildWAMessage('fetal');
+    window.open('https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+    if (typeof scheduleAutoCleanup === 'function') scheduleAutoCleanup();
+  }, 1200);
+};
+
+window.enviarWhatsAppCardio = function () {
+  document.getElementById('sendingOverlay').classList.add('show');
+
+  try {
+    sendToSheet(collectPayload('cardio'));
+  } catch (e) {
+    console.error('[MDV] collectPayload(cardio) falhou:', e);
+  }
+
+  setTimeout(() => {
+    document.getElementById('sendingOverlay').classList.remove('show');
+    const msg = buildWAMessage('cardio');
+    window.open('https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg), '_blank');
+    if (typeof scheduleAutoCleanup === 'function') scheduleAutoCleanup();
+  }, 1200);
+};
+
+console.log('[MDV] ✓ Patch de sincronização Sheets ativado · sheetsUrl OK · ' + new Date().toLocaleString('pt-BR'));
 </script>
 </body>
 </html>
